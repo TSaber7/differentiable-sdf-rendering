@@ -61,6 +61,7 @@ def optimize(scene_name, config, opt_name, output_dir, ref_spp=1024,
 
 
 def main(args):
+    # 参数解析
     parser = argparse.ArgumentParser(description='''Reconstructs an object as an SDF''')
     parser.add_argument('scenes', default=None, nargs='*', help='Synthetic reference scenes to optimize')
     parser.add_argument('--optconfigs', '--opt', nargs='+', help='Optimization configurations to run')

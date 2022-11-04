@@ -15,3 +15,5 @@ outputs_new
 outputs_old
 venv.bak/
 venv/
+scenes/
+*.zip
