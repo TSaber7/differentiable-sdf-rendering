@@ -24,7 +24,8 @@ def load_ref_images(paths, multiscale=False):
         new_res = bmp.size()
         while np.min(new_res) > 4:
             new_res = new_res // 2
-            d[int(new_res[0])] = mi.TensorXf(resize_img(bmp, new_res, smooth=True))
+            d[int(new_res[0])] = mi.TensorXf(
+                resize_img(bmp, new_res, smooth=True))
         result.append(d)
     return result
 
@@ -36,6 +37,7 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
     if len(mts_args) > 0:
         print(f"Cmdline arguments passed to Mitsuba: {mts_args}")
 
+    # 加载参考图像
     scene_name = scene_config.scene
     ref_scene_name = join(SCENE_DIR, scene_name, f'{scene_name}.xml')
     ref_images = load_ref_images(ref_image_paths, True)
@@ -47,10 +49,12 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
     sdf_scene.integrator().warp_field = config.get_warpfield(sdf_object)
 
     params = mi.traverse(sdf_scene)
-    assert any('_sdf_' in shape.id() for shape in sdf_scene.shapes()), "Could not find a placeholder shape for the SDF"
+    assert any('_sdf_' in shape.id() for shape in sdf_scene.shapes()
+               ), "Could not find a placeholder shape for the SDF"
     params.keep(scene_config.param_keys)
 
-    opt = mi.ad.Adam(lr=config.learning_rate, params=params, mask_updates=config.mask_optimizer)
+    opt = mi.ad.Adam(lr=config.learning_rate, params=params,
+                     mask_updates=config.mask_optimizer)
     n_iter = config.n_iter
     scene_config.initialize(opt, sdf_scene)
     params.update(opt)
@@ -60,7 +64,8 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
         with dr.suspend_grad():
             img = mi.render(sdf_scene, sensor=sensor, seed=idx,
                             spp=config.spp * config.primal_spp_mult)
-        mi.util.write_bitmap(join(output_dir, f'init-{idx:02d}.exr'), img[..., :3])
+        mi.util.write_bitmap(
+            join(output_dir, f'init-{idx:02d}.exr'), img[..., :3])
 
     # Set initial rendering resolution
     for sensor in scene_config.sensors:
@@ -79,10 +84,12 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
                                 seed=seed, spp=config.spp * config.primal_spp_mult,
                                 seed_grad=seed + 1 + len(scene_config.sensors), spp_grad=config.spp)
                 seed += 1 + len(scene_config.sensors)
-                view_loss = scene_config.loss(img, ref_images[idx][sensor.film().crop_size()[0]]) / scene_config.batch_size
+                view_loss = scene_config.loss(
+                    img, ref_images[idx][sensor.film().crop_size()[0]]) / scene_config.batch_size
                 dr.backward(view_loss)
                 bmp = resize_img(mi.Bitmap(img), scene_config.target_res)
-                mi.util.write_bitmap(join(opt_image_dir, f'opt-{i:04d}-{idx:02d}' + ('.png' if write_ldr_images else '.exr')), bmp)
+                mi.util.write_bitmap(join(
+                    opt_image_dir, f'opt-{i:04d}-{idx:02d}' + ('.png' if write_ldr_images else '.exr')), bmp)
                 loss += view_loss
 
             # Evaluate regularization loss
@@ -110,13 +117,16 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
         plt.xlabel('Iterations')
         plt.ylabel('Objective function value')
         avg_loss = np.mean(np.array(loss_values)[-5:])
-        plt.title(f"Final loss: {100*loss_values[-1]:.3f} (avg. over 5 its: {100*avg_loss:.3f})")
+        plt.title(
+            f"Final loss: {100*loss_values[-1]:.3f} (avg. over 5 its: {100*avg_loss:.3f})")
         plt.savefig(join(output_dir, 'loss.pdf'))
         plt.savefig(join(output_dir, 'loss.png'))
 
         # Write out total time and basic config info to json
-        d = {'total_time': time.time() - pbar.start_t, 'loss_values': loss_values}
-        dump_metadata(config, scene_config, d, join(output_dir, 'metadata.json'))
+        d = {'total_time': time.time() - pbar.start_t,
+             'loss_values': loss_values}
+        dump_metadata(config, scene_config, d,
+                      join(output_dir, 'metadata.json'))
 
     # If optimization finished, create optimization video and turntable anim
     print("[+] Writing convergence video")
@@ -129,4 +139,5 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
         params.update(opt)
 
     sdf_scene.integrator().warp_field = None
-    render_turntable(sdf_scene, output_dir, resx=512, resy=512, spp=256, n_frames=64)
+    render_turntable(sdf_scene, output_dir, resx=512,
+                     resy=512, spp=256, n_frames=64)

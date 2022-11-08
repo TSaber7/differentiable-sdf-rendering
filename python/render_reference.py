@@ -25,13 +25,9 @@ def render_reference_images(scene_config, config, ref_spp=1024, force=False, ver
         set_sensor_res(sensor, mi.ScalarVector2i(
             scene_config.resx, scene_config.resy))
         fn = join(render_folder, f'ref-{sensor_idx:02d}.exr')
-        if os.path.isfile(fn) and not force:
-            if verbose:
-                print(f'File exists, not rendering of {fn}')
-        else:
-            img = mi.render(ref_scene, sensor=sensor,
+        img = mi.render(ref_scene, sensor=sensor,
                             seed=sensor_idx + 41, spp=ref_spp)
-            mi.util.write_bitmap(fn, img[..., :3], write_async=False)
+        mi.util.write_bitmap(fn, img[..., :3], write_async=False)
 
 
 def copy_reference_images_to_output_dir(scene_config, config, output_dir):
@@ -62,12 +58,6 @@ def optimize(scene_name, config, opt_name, output_dir, ref_spp=1024,
     opt_config.scene = scene_name
     render_reference_images(opt_config, config, ref_spp=ref_spp,
                             force=force, verbose=verbose, mts_args=mts_args)
-    ref_image_paths = copy_reference_images_to_output_dir(
-        opt_config, config, current_output_dir)
-
-    # 2. Optimize SDF compared to ref image(s)
-    optimize_shape(opt_config, mts_args, ref_image_paths,
-                   current_output_dir, config)
 
 
 def main(args):
