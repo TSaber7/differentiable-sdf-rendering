@@ -68,6 +68,7 @@ class SceneConfig:
     def load_checkpoint(self, scene, output_dir, i):
         """Attempts to restore scene parameters given an iteration"""
         params = mi.traverse(scene)
+        params
         params.keep(self.param_keys + [SDF_DEFAULT_KEY, ])
 
         # Create an optimizer that temporarily serves to hold the loaded variables

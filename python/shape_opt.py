@@ -48,42 +48,99 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
     sdf_object = sdf_scene.integrator().sdf
     sdf_scene.integrator().warp_field = config.get_warpfield(sdf_object)
 
+    # 获取场景参数
     params = mi.traverse(sdf_scene)
     assert any('_sdf_' in shape.id() for shape in sdf_scene.shapes()
                ), "Could not find a placeholder shape for the SDF"
-    params.keep(scene_config.param_keys)
+    params.keep(scene_config.param_keys +
+                [r'PerspectiveCamera.*\.to_world'])
 
+    # 设置优化器
     opt = mi.ad.Adam(lr=config.learning_rate, params=params,
                      mask_updates=config.mask_optimizer)
     n_iter = config.n_iter
     scene_config.initialize(opt, sdf_scene)
     params.update(opt)
 
+    n_camera = 6
+    # for idx, sensor in enumerate(scene_config.sensors):
+    for idx in range(n_camera):
+        camera_name = 'PerspectiveCamera'
+        if (idx > 0):
+            camera_name = f'PerspectiveCamera_{idx}'
+        opt[camera_name+'_origin'] = mi.Point3f(0.5, 0.5, 2.8)
+        opt[camera_name+'_target'] = mi.Point3f(0.5, 0.5, 0.5)
+        opt[camera_name+'_up'] = mi.Point3f(0.0, 1.0, 0.0)
+
+    def update_cameras(n_camera,opt,params):
+        for idx in range(n_camera):
+            camera_name = 'PerspectiveCamera'
+            if (idx > 0):
+                camera_name = f'PerspectiveCamera_{idx}'
+            trafo = mi.Transform4f.look_at(
+                origin=opt[camera_name+'_origin'], target=opt[camera_name+'_target'], up=opt[camera_name+'_up'])
+            params[camera_name+'.to_world'] = trafo
+            params.update()
+
+    update_cameras(n_camera=n_camera,opt=opt,params=params)
+    # sensors = []
+
+    # def load_cameras(n_camera, opt, angle_shift=0.0, resx=128, resy=128, radius=2.0, height_scale=1.0):
+    #     sampler = mi.load_dict({'type': 'independent'})
+    #     film = mi.load_dict({
+    #         'type': 'hdrfilm', 'width': resx, 'height': resy,
+    #         'pixel_format': 'rgb', 'pixel_filter': {'type': 'gaussian'}, 'sample_border': True})
+
+    #     sensors.clear()
+    #     for idx in range(n_camera):
+    #         camera_name = f'Camera_{idx}'
+    #         tran = mi.ScalarTransform4f.look_at(origin=mi.ScalarPoint3f(opt[camera_name+'_origin'].x[0], opt[camera_name+'_origin'].y[0], opt[camera_name+'_origin'].z[0]),
+    #                                             target=mi.ScalarPoint3f(
+    #                                                 opt[camera_name+'_target'].x[0], opt[camera_name+'_target'].y[0], opt[camera_name+'_target'].z[0]),
+    #                                             up=mi.ScalarPoint3f(opt[camera_name+'_up'].x[0], opt[camera_name+'_up'].y[0], opt[camera_name+'_up'].z[0]))
+    #         s = mi.load_dict({
+    #             'type': 'perspective',
+    #             'fov': 39.0,
+    #             'to_world': tran,
+    #             'sampler': sampler,
+    #             'film': film})
+    #         sensors.append(s)
+
+    # load_cameras(n_camera, opt)
+
+    # TODO 添加相机参数
+
     # Render shape initialization
-    for idx, sensor in enumerate(scene_config.sensors):
+    # for idx, sensor in enumerate(scene_config.sensors):
+    for idx in range(n_camera):
         with dr.suspend_grad():
-            img = mi.render(sdf_scene, sensor=sensor, seed=idx,
+            img = mi.render(sdf_scene,  seed=idx, sensor=idx,
                             spp=config.spp * config.primal_spp_mult)
         mi.util.write_bitmap(
             join(output_dir, f'init-{idx:02d}.exr'), img[..., :3])
 
     # Set initial rendering resolution
-    for sensor in scene_config.sensors:
-        set_sensor_res(sensor, scene_config.init_res)
+    # for sensor in scene_config.sensors:
+    # for idx in range(n_camera):
+    #     set_sensor_res(sensors[idx], scene_config.init_res)
 
     opt_image_dir = join(output_dir, 'opt')
     os.makedirs(opt_image_dir, exist_ok=True)
     seed = 0
     loss_values = []
+
+    sensors=sdf_scene.sensors()
     try:
         pbar = tqdm.tqdm(range(n_iter))
         for i in pbar:
             loss = mi.Float(0.0)
-            for idx, sensor in scene_config.get_sensor_iterator(i):
-                img = mi.render(sdf_scene, params=params, sensor=sensor,
+            for idx in range(n_camera):
+                img = mi.render(sdf_scene, params=params, sensor=idx,
                                 seed=seed, spp=config.spp * config.primal_spp_mult,
                                 seed_grad=seed + 1 + len(scene_config.sensors), spp_grad=config.spp)
                 seed += 1 + len(scene_config.sensors)
+
+                sensor=sensors[idx]
                 view_loss = scene_config.loss(
                     img, ref_images[idx][sensor.film().crop_size()[0]]) / scene_config.batch_size
                 dr.backward(view_loss)
@@ -106,10 +163,14 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
 
             pbar.set_description(loss_str)
             loss_values.append(loss[0])
+
+            print(f"\n grad={dr.grad(opt['PerspectiveCamera_1_origin'])}.")
+
             opt.step()
             scene_config.validate_params(opt, i)
             scene_config.update_scene(sdf_scene, i)
             params.update(opt)
+            update_cameras(n_camera=n_camera,opt=opt,params=params)
     finally:
         import matplotlib.pyplot as plt
         plt.figure()
@@ -128,16 +189,17 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
         dump_metadata(config, scene_config, d,
                       join(output_dir, 'metadata.json'))
 
-    # If optimization finished, create optimization video and turntable anim
-    print("[+] Writing convergence video")
-    create_video(output_dir)
-    print("[+] Rendering turntable")
-    # Load the exponential moving average of the parameters and save them, and render turntable
-    if scene_config.param_averaging_beta is not None:
-        scene_config.load_mean_parameters(opt)
-        scene_config.save_params(opt, output_dir, 'final')
-        params.update(opt)
+    # TODO 开启视频渲染
+    # # If optimization finished, create optimization video and turntable anim
+    # print("[+] Writing convergence video")
+    # create_video(output_dir)
+    # print("[+] Rendering turntable")
+    # # Load the exponential moving average of the parameters and save them, and render turntable
+    # if scene_config.param_averaging_beta is not None:
+    #     scene_config.load_mean_parameters(opt)
+    #     scene_config.save_params(opt, output_dir, 'final')
+    #     params.update(opt)
 
-    sdf_scene.integrator().warp_field = None
-    render_turntable(sdf_scene, output_dir, resx=512,
-                     resy=512, spp=256, n_frames=64)
+    # sdf_scene.integrator().warp_field = None
+    # render_turntable(sdf_scene, output_dir, resx=512,
+    #                  resy=512, spp=256, n_frames=64)
