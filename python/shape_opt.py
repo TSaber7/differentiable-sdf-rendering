@@ -7,6 +7,8 @@ import drjit as dr
 import mitsuba as mi
 import numpy as np
 import tqdm
+import sys
+import matplotlib.pyplot as plt
 
 from constants import SCENE_DIR
 from create_video import create_video
@@ -63,55 +65,42 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
     params.update(opt)
 
     n_camera = 6
+    sensors = sdf_scene.sensors()
+
     # for idx, sensor in enumerate(scene_config.sensors):
     for idx in range(n_camera):
         camera_name = 'PerspectiveCamera'
         if (idx > 0):
             camera_name = f'PerspectiveCamera_{idx}'
-        opt[camera_name+'_origin'] = mi.Point3f(0.5, 0.5, 2.8)
-        opt[camera_name+'_target'] = mi.Point3f(0.5, 0.5, 0.5)
-        opt[camera_name+'_up'] = mi.Point3f(0.0, 1.0, 0.0)
+        opt[camera_name+'_theta'] = mi.Float(0.0)
+        opt[camera_name+'_phi'] = mi.Float(0.0)
+        opt[camera_name+'_r'] = mi.Float(4.0)
 
     def update_cameras(n_camera,opt,params):
         for idx in range(n_camera):
             camera_name = 'PerspectiveCamera'
             if (idx > 0):
                 camera_name = f'PerspectiveCamera_{idx}'
+            # clamp
+            opt[camera_name+'_theta']=dr.clamp(opt[camera_name+'_theta'], 0, dr.pi)
+            opt[camera_name+'_phi']=dr.clamp(opt[camera_name+'_phi'], 0, 2*dr.pi)
+            opt[camera_name+'_r']=dr.clamp(opt[camera_name+'_r'], 0, sys.float_info.max)
+            origin_x = opt[camera_name+'_r'] * \
+                dr.sin(opt[camera_name+'_theta']) * \
+                dr.cos(opt[camera_name+'_phi'])
+            origin_y = opt[camera_name+'_r'] * \
+                dr.sin(opt[camera_name+'_theta']) * \
+                dr.sin(opt[camera_name+'_phi'])
+            origin_z = opt[camera_name+'_r']*dr.cos(opt[camera_name+'_theta'])
             trafo = mi.Transform4f.look_at(
-                origin=opt[camera_name+'_origin'], target=opt[camera_name+'_target'], up=opt[camera_name+'_up'])
+                origin=mi.Point3f(origin_x,origin_y,origin_z), target=mi.Point3f(0.5, 0.5, 0.5), up=mi.Point3f(0.0, 1.0, 0.0))
             params[camera_name+'.to_world'] = trafo
-            params.update()
+        params.update()
 
     update_cameras(n_camera=n_camera,opt=opt,params=params)
-    # sensors = []
-
-    # def load_cameras(n_camera, opt, angle_shift=0.0, resx=128, resy=128, radius=2.0, height_scale=1.0):
-    #     sampler = mi.load_dict({'type': 'independent'})
-    #     film = mi.load_dict({
-    #         'type': 'hdrfilm', 'width': resx, 'height': resy,
-    #         'pixel_format': 'rgb', 'pixel_filter': {'type': 'gaussian'}, 'sample_border': True})
-
-    #     sensors.clear()
-    #     for idx in range(n_camera):
-    #         camera_name = f'Camera_{idx}'
-    #         tran = mi.ScalarTransform4f.look_at(origin=mi.ScalarPoint3f(opt[camera_name+'_origin'].x[0], opt[camera_name+'_origin'].y[0], opt[camera_name+'_origin'].z[0]),
-    #                                             target=mi.ScalarPoint3f(
-    #                                                 opt[camera_name+'_target'].x[0], opt[camera_name+'_target'].y[0], opt[camera_name+'_target'].z[0]),
-    #                                             up=mi.ScalarPoint3f(opt[camera_name+'_up'].x[0], opt[camera_name+'_up'].y[0], opt[camera_name+'_up'].z[0]))
-    #         s = mi.load_dict({
-    #             'type': 'perspective',
-    #             'fov': 39.0,
-    #             'to_world': tran,
-    #             'sampler': sampler,
-    #             'film': film})
-    #         sensors.append(s)
-
-    # load_cameras(n_camera, opt)
-
     # TODO 添加相机参数
 
     # Render shape initialization
-    # for idx, sensor in enumerate(scene_config.sensors):
     for idx in range(n_camera):
         with dr.suspend_grad():
             img = mi.render(sdf_scene,  seed=idx, sensor=idx,
@@ -121,33 +110,44 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
 
     # Set initial rendering resolution
     # for sensor in scene_config.sensors:
-    # for idx in range(n_camera):
-    #     set_sensor_res(sensors[idx], scene_config.init_res)
+
+    
+
+    for idx in range(n_camera):
+        set_sensor_res(sensors[idx], scene_config.init_res)
 
     opt_image_dir = join(output_dir, 'opt')
     os.makedirs(opt_image_dir, exist_ok=True)
     seed = 0
     loss_values = []
 
-    sensors=sdf_scene.sensors()
     try:
         pbar = tqdm.tqdm(range(n_iter))
         for i in pbar:
             loss = mi.Float(0.0)
+
+            # 在多相机循环中重复backward将无法对后续的相机参数传播导数
+            # 可能是由于backward后需要再次建立计算过程与优化变量的依赖
+            # 现改为循环结束后对总loss进行backward
             for idx in range(n_camera):
                 img = mi.render(sdf_scene, params=params, sensor=idx,
                                 seed=seed, spp=config.spp * config.primal_spp_mult,
-                                seed_grad=seed + 1 + len(scene_config.sensors), spp_grad=config.spp)
-                seed += 1 + len(scene_config.sensors)
-
-                sensor=sensors[idx]
+                                seed_grad=seed + 1 + len(sensors), spp_grad=config.spp)
+                seed += 1 + len(sensors)
+                
+                # ref_images[idx]中包含不同分辨率层级的图像，128、64、32。。。
+                # sensors[idx].film().crop_size()[0]确定了选取相机分辨率128层级的图像
                 view_loss = scene_config.loss(
-                    img, ref_images[idx][sensor.film().crop_size()[0]]) / scene_config.batch_size
-                dr.backward(view_loss)
+                    img, ref_images[idx][sensors[idx].film().crop_size()[0]]) / scene_config.batch_size
+
+                #dr.backward(view_loss)
+
                 bmp = resize_img(mi.Bitmap(img), scene_config.target_res)
                 mi.util.write_bitmap(join(
                     opt_image_dir, f'opt-{i:04d}-{idx:02d}' + ('.png' if write_ldr_images else '.exr')), bmp)
                 loss += view_loss
+
+            dr.backward(loss)
 
             # Evaluate regularization loss
             reg_loss = scene_config.eval_regularizer(opt, sdf_object, i)
@@ -164,13 +164,16 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
             pbar.set_description(loss_str)
             loss_values.append(loss[0])
 
-            print(f"\n grad={dr.grad(opt['PerspectiveCamera_1_origin'])}.")
+            print(f"\n grad0={dr.grad(opt['PerspectiveCamera_theta'])}")
+            print(f"\n grad1={dr.grad(opt['PerspectiveCamera_1_theta'])}")
 
             opt.step()
             scene_config.validate_params(opt, i)
             scene_config.update_scene(sdf_scene, i)
             params.update(opt)
             update_cameras(n_camera=n_camera,opt=opt,params=params)
+
+            # TODO 开启图表和日志输出
     finally:
         import matplotlib.pyplot as plt
         plt.figure()
@@ -190,16 +193,16 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
                       join(output_dir, 'metadata.json'))
 
     # TODO 开启视频渲染
-    # # If optimization finished, create optimization video and turntable anim
-    # print("[+] Writing convergence video")
-    # create_video(output_dir)
-    # print("[+] Rendering turntable")
-    # # Load the exponential moving average of the parameters and save them, and render turntable
-    # if scene_config.param_averaging_beta is not None:
-    #     scene_config.load_mean_parameters(opt)
-    #     scene_config.save_params(opt, output_dir, 'final')
-    #     params.update(opt)
+    # If optimization finished, create optimization video and turntable anim
+    print("[+] Writing convergence video")
+    create_video(output_dir)
+    print("[+] Rendering turntable")
+    # Load the exponential moving average of the parameters and save them, and render turntable
+    if scene_config.param_averaging_beta is not None:
+        scene_config.load_mean_parameters(opt)
+        scene_config.save_params(opt, output_dir, 'final')
+        params.update(opt)
 
-    # sdf_scene.integrator().warp_field = None
-    # render_turntable(sdf_scene, output_dir, resx=512,
-    #                  resy=512, spp=256, n_frames=64)
+    sdf_scene.integrator().warp_field = None
+    render_turntable(sdf_scene, output_dir, resx=512,
+                     resy=512, spp=256, n_frames=64)
