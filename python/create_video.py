@@ -47,6 +47,7 @@ def create_video(output_dir):
         images[j] = images[j][:n_frames]
 
     res = mi.Bitmap(refs[0]).size()
+
     ncols = n_sensors
     nrows = 2
     if ncols / nrows > 4:

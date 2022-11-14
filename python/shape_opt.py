@@ -33,7 +33,7 @@ def load_ref_images(paths, multiscale=False):
 
 
 def optimize_shape(scene_config, mts_args, ref_image_paths,
-                   output_dir, config, write_ldr_images=True):
+                   output_dir, config, camera_sets, write_ldr_images=True):
     """Main function that runs the actual SDF shape reconstruction"""
 
     if len(mts_args) > 0:
@@ -64,43 +64,34 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
     scene_config.initialize(opt, sdf_scene)
     params.update(opt)
 
-    n_camera = 6
+    n_camera = len(camera_sets)
     sensors = sdf_scene.sensors()
 
-    # for idx, sensor in enumerate(scene_config.sensors):
+    # 设置相机初始位姿
     for idx in range(n_camera):
         camera_name = 'PerspectiveCamera'
         if (idx > 0):
             camera_name = f'PerspectiveCamera_{idx}'
-        opt[camera_name+'_theta'] = mi.Float(0.0)
-        opt[camera_name+'_phi'] = mi.Float(0.0)
-        opt[camera_name+'_r'] = mi.Float(4.0)
+        opt[camera_name+'_x'] = mi.Float(camera_sets[f'set_{idx}']['x'])
+        opt[camera_name+'_y'] = mi.Float(camera_sets[f'set_{idx}']['y'])
+        opt[camera_name+'_z'] = mi.Float(camera_sets[f'set_{idx}']['z'])
 
+    # 更新相机位姿
     def update_cameras(n_camera, opt, params):
         for idx in range(n_camera):
             camera_name = 'PerspectiveCamera'
             if (idx > 0):
                 camera_name = f'PerspectiveCamera_{idx}'
-            # clamp
-            opt[camera_name +
-                '_theta'] = dr.clamp(opt[camera_name+'_theta'], 0, dr.pi)
-            opt[camera_name +
-                '_phi'] = dr.clamp(opt[camera_name+'_phi'], 0, 2*dr.pi)
-            opt[camera_name +
-                '_r'] = dr.clamp(opt[camera_name+'_r'], 0, sys.float_info.max)
-            origin_x = opt[camera_name+'_r'] * \
-                dr.sin(opt[camera_name+'_theta']) * \
-                dr.cos(opt[camera_name+'_phi'])
-            origin_y = opt[camera_name+'_r'] * \
-                dr.sin(opt[camera_name+'_theta']) * \
-                dr.sin(opt[camera_name+'_phi'])
-            origin_z = opt[camera_name+'_r']*dr.cos(opt[camera_name+'_theta'])
             trafo = mi.Transform4f.look_at(
-                origin=mi.Point3f(origin_x, origin_y, origin_z), target=mi.Point3f(0.5, 0.5, 0.5), up=mi.Point3f(0.0, 1.0, 0.0))
+                origin=mi.Point3f(opt[camera_name+'_x'], opt[camera_name+'_y'], opt[camera_name+'_z']), target=mi.Point3f(0.5, 0.5, 0.5), up=mi.Point3f(0.0, 1.0, 0.0))
             params[camera_name+'.to_world'] = trafo
         params.update()
 
     update_cameras(n_camera=n_camera, opt=opt, params=params)
+
+    # TODO 设置渲染分辨率
+    for idx in range(n_camera):
+        set_sensor_res(sensors[idx], [149,113])
 
     # Render shape initialization
     for idx in range(n_camera):
@@ -109,11 +100,6 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
                             spp=config.spp * config.primal_spp_mult)
         mi.util.write_bitmap(
             join(output_dir, f'init-{idx:02d}.exr'), img[..., :3])
-
-    # Set initial rendering resolution
-    # for sensor in scene_config.sensors:
-    for idx in range(n_camera):
-        set_sensor_res(sensors[idx], scene_config.init_res)
 
     opt_image_dir = join(output_dir, 'opt')
     os.makedirs(opt_image_dir, exist_ok=True)
@@ -127,28 +113,6 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
     for idx in range(n_camera):
         all_view_loss_values.append([])
 
-    accepted_loss = 0.002
-    iteration_patience = 128
-    accepted_descent = 0.0001
-
-    # 判断单个相机陷入次优解
-    def detect_suboptimal(view_loss_values, accepted_loss, iteration_patience, accepted_descent):
-        if view_loss_values[-1] <= accepted_loss:
-            return False
-        if len(view_loss_values) < iteration_patience:
-            return False
-        descent = view_loss_values[-iteration_patience]-view_loss_values[-1]
-        if descent >= accepted_descent:
-            return False
-        
-        view_loss_values.clear()
-        return True
-
-    # TODO 陷入次优解后，尝试翻转相机突破次优解
-    def break_suboptimal(opt, camera_name):
-        opt[camera_name+'_theta'] = mi.Float(dr.pi-opt[camera_name+'_theta'])
-        opt[camera_name+'_phi'] = mi.Float(dr.pi+opt[camera_name+'_phi'])
-
     try:
         pbar = tqdm.tqdm(range(n_iter))
         for i in pbar:
@@ -160,27 +124,28 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
             for idx in range(n_camera):
                 img = mi.render(sdf_scene, params=params, sensor=idx,
                                 seed=seed, spp=config.spp * config.primal_spp_mult,
-                                seed_grad=seed + 1 + len(sensors), spp_grad=config.spp)
-                seed += 1 + len(sensors)
+                                seed_grad=seed + 1 + n_camera, spp_grad=config.spp)
+                seed += 1 + n_camera
 
                 # ref_images[idx]中包含不同分辨率层级的图像，128、64、32。。。
                 # sensors[idx].film().crop_size()[0]确定了选取相机分辨率128层级的图像
+                # TODO 选取分辨率
                 view_loss = scene_config.loss(
-                    img, ref_images[idx][sensors[idx].film().crop_size()[0]]) / scene_config.batch_size
+                    img, ref_images[idx][113]) / scene_config.batch_size
 
-                bmp = resize_img(mi.Bitmap(img), scene_config.target_res)
+                bmp = resize_img(mi.Bitmap(img), [149, 113])
                 mi.util.write_bitmap(join(
                     opt_image_dir, f'opt-{i:04d}-{idx:02d}' + ('.png' if write_ldr_images else '.exr')), bmp)
                 loss += view_loss
 
                 all_view_loss_values[idx].append(view_loss[0])
 
-                if detect_suboptimal(view_loss_values=all_view_loss_values[idx], accepted_descent=accepted_descent,
-                                     iteration_patience=iteration_patience, accepted_loss=accepted_loss):
-                    camera_name = 'PerspectiveCamera'
-                    if (idx > 0):
-                        camera_name = f'PerspectiveCamera_{idx}'
-                    break_suboptimal(opt,camera_name=camera_name)
+                # if detect_suboptimal(view_loss_values=all_view_loss_values[idx], accepted_descent=accepted_descent,
+                #                      iteration_patience=iteration_patience, accepted_loss=accepted_loss):
+                #     camera_name = 'PerspectiveCamera'
+                #     if (idx > 0):
+                #         camera_name = f'PerspectiveCamera_{idx}'
+                #     break_suboptimal(opt,camera_name=camera_name)
             dr.backward(loss)
 
             # Evaluate regularization loss
@@ -204,7 +169,7 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
             params.update(opt)
             update_cameras(n_camera=n_camera, opt=opt, params=params)
 
-            # TODO 开启图表和日志输出
+         # TODO 开启图表和日志输出
     finally:
         import matplotlib.pyplot as plt
         plt.figure()

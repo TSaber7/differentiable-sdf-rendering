@@ -6,7 +6,6 @@ import sys
 from os.path import join
 
 import mitsuba as mi
-
 from constants import OUTPUT_DIR, RENDER_DIR, SCENE_DIR
 
 
@@ -34,14 +33,14 @@ def render_reference_images(scene_config, config, ref_spp=1024, force=False, ver
             mi.util.write_bitmap(fn, img[..., :3], write_async=False)
 
 
-def copy_reference_images_to_output_dir(scene_config, config, output_dir):
+def reference_images_in_output_dir(scene_config, config, output_dir):
     """Copies the reference images to the output directory and returns a list of them"""
     from shutil import copyfile
     ref_image_paths = []
     # render_folder = join(RENDER_DIR, scene_config.scene,
     #                     scene_config.name, config.integrator, 'ref')
     for idx in range(len(scene_config.sensors)):
-        ref_name = join(output_dir, f'ref-{idx:02d}.exr')
+        ref_name = join(output_dir, f'ref-{idx:02d}')
         # copyfile(join(render_folder, f'ref-{idx:02d}.exr'), ref_name)
         ref_image_paths.append(ref_name)
     return ref_image_paths
@@ -52,7 +51,7 @@ def optimize(scene_name, config, opt_name, output_dir, ref_spp=1024,
     from opt_configs import get_opt_config
     from shape_opt import optimize_shape
 
-    # 1. Render the reference images if needed
+    # 1. 读取设置
     current_output_dir = join(output_dir, scene_name, opt_name, config.name)
     os.makedirs(current_output_dir, exist_ok=True)
     mi.set_log_level(3 if verbose else mi.LogLevel.Warn)
@@ -60,14 +59,26 @@ def optimize(scene_name, config, opt_name, output_dir, ref_spp=1024,
 
     # Pass scene name as part of the opt. config
     opt_config.scene = scene_name
-    render_reference_images(opt_config, config, ref_spp=ref_spp,
-                            force=force, verbose=verbose, mts_args=mts_args)
-    ref_image_paths = copy_reference_images_to_output_dir(
+
+    # 读取参考图像
+    ref_image_paths = reference_images_in_output_dir(
         opt_config, config, current_output_dir)
+
+    for idx in range(len(ref_image_paths)):
+        img=mi.Bitmap(ref_image_paths[idx]+'.png')
+        img = img.convert(pixel_format=mi.Bitmap.PixelFormat.RGB,component_format=mi.Struct.Type.Float32)
+        ref_image_paths[idx] = ref_image_paths[idx]+'.exr'
+        mi.util.write_bitmap(ref_image_paths[idx], img, write_async=False)
+
+    # 读取初始相机位姿
+    # 读取json文件
+    import json
+    camera_sets_path = join(current_output_dir, f'camera_sets.json')
+    camera_sets = json.load(open(camera_sets_path, "r"))
 
     # 2. Optimize SDF compared to ref image(s)
     optimize_shape(opt_config, mts_args, ref_image_paths,
-                   current_output_dir, config)
+                   current_output_dir, config,camera_sets)
 
 
 def main(args):
@@ -95,11 +106,13 @@ def main(args):
     args, uargs = parser.parse_known_args(args)
     #
 
-    use_llvm = args.llvm or not ('cuda_ad_rgb' in mi.variants())
-    mi.set_variant('llvm_ad_rgb' if use_llvm else 'cuda_ad_rgb')
+    # TODO 设置mitsuba variant
+    # use_llvm = args.llvm or not ('cuda_ad_rgb' in mi.variants())
+    # mi.set_variant('llvm_ad_rgb' if use_llvm else 'cuda_ad_rgb')
+    mi.set_variant('cuda_ad_rgb')
 
     from configs import apply_cmdline_args, get_config
-    from opt_configs import is_valid_opt_config, get_opt_config
+    from opt_configs import get_opt_config, is_valid_opt_config
 
     if args.optconfigs is None:
         raise ValueError('Must at least specify one opt. config!')
