@@ -55,7 +55,9 @@ def create_video(output_dir):
         nrows *= 2
     with TemporaryDirectory() as tmp_dir:
         for i in tqdm.tqdm(range(n_frames)):
-            frame = np.zeros((2 * n_sensors, res[0], res[1], 3), dtype=np.uint8)
+
+            # res[0]和res[1]应互换
+            frame = np.zeros((2 * n_sensors, res[1], res[0], 3), dtype=np.uint8)
             row = 0
             for s in range(n_sensors):
                 row = s // ncols

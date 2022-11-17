@@ -52,8 +52,10 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
 
     # 获取场景参数
     params = mi.traverse(sdf_scene)
+
     assert any('_sdf_' in shape.id() for shape in sdf_scene.shapes()
                ), "Could not find a placeholder shape for the SDF"
+
     params.keep(scene_config.param_keys +
                 [r'PerspectiveCamera.*\.to_world'])
 
@@ -68,30 +70,35 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
     sensors = sdf_scene.sensors()
 
     # 设置相机初始位姿
+    target = mi.Point3f(0.5, 0.5, 0.5)
     for idx in range(n_camera):
         camera_name = 'PerspectiveCamera'
         if (idx > 0):
             camera_name = f'PerspectiveCamera_{idx}'
-        opt[camera_name+'_x'] = mi.Float(camera_sets[f'set_{idx}']['x'])
-        opt[camera_name+'_y'] = mi.Float(camera_sets[f'set_{idx}']['y'])
-        opt[camera_name+'_z'] = mi.Float(camera_sets[f'set_{idx}']['z'])
+        # opt[camera_name+'_origin_x'] = target.x+mi.Float(camera_sets[f'set_{idx}']['x'])
+        # opt[camera_name+'_origin_y'] = target.y+mi.Float(camera_sets[f'set_{idx}']['y'])
+        # opt[camera_name+'_origin_z'] = target.z+mi.Float(camera_sets[f'set_{idx}']['z'])
+        opt[camera_name +'_origin'] = mi.Point3f(target.x+camera_sets[f'set_{idx}']['x'], target.y+camera_sets[f'set_{idx}']['y'], target.z+camera_sets[f'set_{idx}']['z'])
+        opt[camera_name + '_target'] = target
+
 
     # 更新相机位姿
+    # 注意相机up向量，永远指向y意味着相机朝向不能与y轴平行
     def update_cameras(n_camera, opt, params):
         for idx in range(n_camera):
             camera_name = 'PerspectiveCamera'
             if (idx > 0):
                 camera_name = f'PerspectiveCamera_{idx}'
             trafo = mi.Transform4f.look_at(
-                origin=mi.Point3f(opt[camera_name+'_x'], opt[camera_name+'_y'], opt[camera_name+'_z']), target=mi.Point3f(0.5, 0.5, 0.5), up=mi.Point3f(0.0, 1.0, 0.0))
+                origin=opt[camera_name + '_origin'], target=opt[camera_name + '_target'], up=mi.Point3f(0.0, 1.0, 0.0))
             params[camera_name+'.to_world'] = trafo
         params.update()
 
     update_cameras(n_camera=n_camera, opt=opt, params=params)
-
+    
     # TODO 设置渲染分辨率
     for idx in range(n_camera):
-        set_sensor_res(sensors[idx], [149,113])
+        set_sensor_res(sensors[idx], [433,577])
 
     # Render shape initialization
     for idx in range(n_camera):
@@ -131,9 +138,9 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
                 # sensors[idx].film().crop_size()[0]确定了选取相机分辨率128层级的图像
                 # TODO 选取分辨率
                 view_loss = scene_config.loss(
-                    img, ref_images[idx][113]) / scene_config.batch_size
+                    img, ref_images[idx][433]) / scene_config.batch_size
 
-                bmp = resize_img(mi.Bitmap(img), [149, 113])
+                bmp = resize_img(mi.Bitmap(img), [433, 577])
                 mi.util.write_bitmap(join(
                     opt_image_dir, f'opt-{i:04d}-{idx:02d}' + ('.png' if write_ldr_images else '.exr')), bmp)
                 loss += view_loss
@@ -185,8 +192,21 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
         # Write out total time and basic config info to json
         d = {'total_time': time.time() - pbar.start_t,
              'loss_values': loss_values,
-             'view_loss_values': all_view_loss_values
+             'view_loss_values': all_view_loss_values,
              }
+        for idx in range(n_camera):
+            camera_name = 'PerspectiveCamera'
+            if (idx > 0):
+                camera_name = f'PerspectiveCamera_{idx}'
+            d[f'origin_dir_{idx}']= {'x':opt[camera_name + '_origin'].x[0]-target.x[0],
+                                 'y': opt[camera_name + '_origin'].y[0]-target.y[0],
+                                 'z': opt[camera_name + '_origin'].z[0]-target.z[0],
+                                    }
+            d[f'target_{idx}'] = {'x': opt[camera_name + '_target'].x[0],
+                                  'y': opt[camera_name + '_target'].y[0],
+                                  'z': opt[camera_name + '_target'].z[0],
+            }
+
         dump_metadata(config, scene_config, d,
                       join(output_dir, 'metadata.json'))
 
