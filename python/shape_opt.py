@@ -22,12 +22,12 @@ def load_ref_images(paths, multiscale=False):
     result = []
     for fn in paths:
         bmp = mi.Bitmap(fn)
-        d = {int(bmp.size()[0]): mi.TensorXf(bmp)}
+        d = [ mi.TensorXf(bmp)]
         new_res = bmp.size()
         while np.min(new_res) > 4:
             new_res = new_res // 2
-            d[int(new_res[0])] = mi.TensorXf(
-                resize_img(bmp, new_res, smooth=True))
+            d.append(mi.TensorXf(
+                resize_img(bmp, new_res, smooth=True))) 
         result.append(d)
     return result
 
@@ -96,9 +96,9 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
 
     update_cameras(n_camera=n_camera, opt=opt, params=params)
     
-    # TODO 设置渲染分辨率
+    # Bitmap转换成TensorXf时，分辨率维度顺序互换
     for idx in range(n_camera):
-        set_sensor_res(sensors[idx], [433,577])
+        set_sensor_res(sensors[idx], [ref_images[idx][0].shape[1], ref_images[idx][0].shape[0]])
 
     # Render shape initialization
     for idx in range(n_camera):
@@ -136,23 +136,19 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
 
                 # ref_images[idx]中包含不同分辨率层级的图像，128、64、32。。。
                 # sensors[idx].film().crop_size()[0]确定了选取相机分辨率128层级的图像
-                # TODO 选取分辨率
+                # 现已改为列表方式通过索引取得不同层级图像
+                # Bitmap转换成TensorXf时，分辨率维度顺序互换
                 view_loss = scene_config.loss(
-                    img, ref_images[idx][433]) / scene_config.batch_size
+                    img, ref_images[idx][0]) / scene_config.batch_size
 
-                bmp = resize_img(mi.Bitmap(img), [433, 577])
+                bmp = resize_img(mi.Bitmap(img), [
+                                 ref_images[idx][0].shape[1], ref_images[idx][0].shape[0]])
                 mi.util.write_bitmap(join(
                     opt_image_dir, f'opt-{i:04d}-{idx:02d}' + ('.png' if write_ldr_images else '.exr')), bmp)
                 loss += view_loss
 
                 all_view_loss_values[idx].append(view_loss[0])
 
-                # if detect_suboptimal(view_loss_values=all_view_loss_values[idx], accepted_descent=accepted_descent,
-                #                      iteration_patience=iteration_patience, accepted_loss=accepted_loss):
-                #     camera_name = 'PerspectiveCamera'
-                #     if (idx > 0):
-                #         camera_name = f'PerspectiveCamera_{idx}'
-                #     break_suboptimal(opt,camera_name=camera_name)
             dr.backward(loss)
 
             # Evaluate regularization loss

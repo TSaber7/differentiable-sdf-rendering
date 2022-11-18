@@ -7,6 +7,7 @@ from os.path import join
 
 import mitsuba as mi
 from constants import OUTPUT_DIR, RENDER_DIR, SCENE_DIR
+from util import resize_img
 
 
 def render_reference_images(scene_config, config, ref_spp=1024, force=False, verbose=False, mts_args=None):
@@ -70,9 +71,14 @@ def optimize(scene_name, config, opt_name, output_dir, ref_spp=1024,
     ref_image_paths = reference_images_in_output_dir(
         len(camera_sets), current_output_dir)
 
+    # 图像转换为使用float的exr格式保存，降分辨率
     for idx in range(len(ref_image_paths)):
         img=mi.Bitmap(ref_image_paths[idx]+'.png')
         img = img.convert(pixel_format=mi.Bitmap.PixelFormat.RGB,component_format=mi.Struct.Type.Float32)
+
+        # TODO 更普适的降分辨率策略
+        img = resize_img(img, img.size()//4, True)
+
         ref_image_paths[idx] = ref_image_paths[idx]+'.exr'
         mi.util.write_bitmap(ref_image_paths[idx], img, write_async=False)
 

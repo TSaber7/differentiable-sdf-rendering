@@ -19,7 +19,7 @@ def resize_img(img, target_res, smooth=False):
     if target_res[0] == source_res[0] and target_res[1] == source_res[1]:
         return img
     rfilter = GAUSSIAN_RFILTER if smooth else BOX_RFILTER
-    return img.resample([target_res[1], target_res[0]], rfilter)
+    return img.resample(target_res, rfilter)
 
 
 def render_turntable(scene, output_dir, resx=128, resy=128, spp=64, n_frames=64, write_exr_files=False):
