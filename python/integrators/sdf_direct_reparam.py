@@ -15,7 +15,6 @@ class SdfDirectReparamIntegrator(ReparamIntegrator):
 
     def sample(self, mode, scene, sampler, ray,
                δL,  state_in, reparam, active, **kwargs):
-
         active = mi.Mask(active)
         # Reparameterize only if we are not rendering in primal mode
         reparametrize = True and mode != dr.ADMode.Primal
@@ -108,7 +107,15 @@ class SdfDirectReparamIntegrator(ReparamIntegrator):
 
         aovs = [extra_output[k] if (extra_output is not None) and (k in extra_output)
                 else mi.Float(0.0) for k in self.aov_names()]
-        return dr.select(valid_ray, mi.Spectrum(result), 0.0), valid_ray, primary_det, aovs
+        
+        # 设置一个极大值用于替换 inf
+        max_t = 2
+
+        # 使用 Dr.Jit 的条件表达式替换 inf 值
+        t = dr.select(si.t >=max_t, max_t/max_t, si.t/max_t)
+
+        return dr.select(valid_ray, mi.Spectrum(t),0.0), valid_ray, primary_det, aovs
+        #return dr.select(valid_ray, mi.Spectrum(result), 0.0), valid_ray, primary_det, aovs
 
 
 mi.register_integrator("sdf_direct_reparam", lambda props: SdfDirectReparamIntegrator(props))
