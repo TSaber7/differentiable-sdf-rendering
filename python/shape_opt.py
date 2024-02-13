@@ -43,24 +43,33 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
     # Load scene, currently handle SDF shape separately from Mitsuba scene
     sdf_scene = mi.load_file(ref_scene_name, shape_file='dummysdf.xml', sdf_filename=join(SCENE_DIR, 'sdfs', 'bunny_64.vol'),
                              integrator=config.integrator, resx=scene_config.resx, resy=scene_config.resy, **mts_args, parallel=config.use_parallel_loading)
+    sdf_scene_depth = mi.load_file(ref_scene_name, shape_file='dummysdf.xml', sdf_filename=join(SCENE_DIR, 'sdfs', 'bunny_64.vol'),
+                            integrator='sdf_depth_reparam', resx=scene_config.resx, resy=scene_config.resy, **mts_args, parallel=config.use_parallel_loading)
+
     sdf_object = sdf_scene.integrator().sdf
     sdf_scene.integrator().warp_field = config.get_warpfield(sdf_object)
 
     params = mi.traverse(sdf_scene)
+    params_depth = mi.traverse(sdf_scene_depth)
     assert any('_sdf_' in shape.id() for shape in sdf_scene.shapes()), "Could not find a placeholder shape for the SDF"
     params.keep(scene_config.param_keys)
+    params_depth.keep(scene_config.param_keys)
 
     opt = mi.ad.Adam(lr=config.learning_rate, params=params, mask_updates=config.mask_optimizer)
     n_iter = config.n_iter
     scene_config.initialize(opt, sdf_scene)
     params.update(opt)
+    params_depth.update(opt)
 
     # Render shape initialization
     for idx, sensor in enumerate(scene_config.sensors):
         with dr.suspend_grad():
             img = mi.render(sdf_scene, sensor=sensor, seed=idx,
                             spp=config.spp * config.primal_spp_mult)
+            img_depth = mi.render(sdf_scene_depth, sensor=sensor, seed=idx,
+                            spp=config.spp * config.primal_spp_mult)
         mi.util.write_bitmap(join(output_dir, f'init-{idx:02d}.exr'), img[..., :3])
+        mi.util.write_bitmap(join(output_dir, f'init-{idx:02d}-depth.exr'), img_depth[..., :3])
 
     # Set initial rendering resolution
     for sensor in scene_config.sensors:
@@ -78,11 +87,16 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
                 img = mi.render(sdf_scene, params=params, sensor=sensor,
                                 seed=seed, spp=config.spp * config.primal_spp_mult,
                                 seed_grad=seed + 1 + len(scene_config.sensors), spp_grad=config.spp)
+                img_depth = mi.render(sdf_scene_depth, params=params, sensor=sensor,
+                                seed=seed, spp=config.spp * config.primal_spp_mult,
+                                seed_grad=seed + 1 + len(scene_config.sensors), spp_grad=config.spp)
                 seed += 1 + len(scene_config.sensors)
                 view_loss = scene_config.loss(img, ref_images[idx][sensor.film().crop_size()[0]]) / scene_config.batch_size
                 dr.backward(view_loss)
                 bmp = resize_img(mi.Bitmap(img), scene_config.target_res)
+                bmp_depth = resize_img(mi.Bitmap(img_depth), scene_config.target_res)
                 mi.util.write_bitmap(join(opt_image_dir, f'opt-{i:04d}-{idx:02d}' + ('.png' if write_ldr_images else '.exr')), bmp)
+                mi.util.write_bitmap(join(opt_image_dir, f'opt-{i:04d}-{idx:02d}-depth' + ('.png' if write_ldr_images else '.exr')), bmp_depth)
                 loss += view_loss
 
             # Evaluate regularization loss
@@ -102,7 +116,9 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
             opt.step()
             scene_config.validate_params(opt, i)
             scene_config.update_scene(sdf_scene, i)
+            scene_config.update_scene(sdf_scene_depth, i)
             params.update(opt)
+            params_depth.update(opt)
     finally:
         import matplotlib.pyplot as plt
         plt.figure()

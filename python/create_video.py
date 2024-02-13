@@ -39,7 +39,7 @@ def create_video(output_dir):
     input_is_ldr = any(fn.endswith('.png') for fn in os.listdir(opt_dir))
 
     for i in range(n_sensors):
-        images.append(sorted(glob.glob(join(opt_dir, f'opt-*-{i:02d}' + ('.png' if input_is_ldr else '.exr')))))
+        images.append(sorted(glob.glob(join(opt_dir, f'opt-*-{i:02d}-depth' + ('.png' if input_is_ldr else '.exr')))))
 
     n_frames = min(len(i) for i in images)
     print(f'[+] Processing {n_frames} opt. frames')

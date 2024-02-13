@@ -16,12 +16,15 @@ def render_reference_images(scene_config, config, ref_spp=1024, force=False, ver
     ref_scene_name = join(SCENE_DIR, scene, f'{scene}.xml')
     ref_scene = mi.load_file(ref_scene_name, integrator=config.integrator, spp=ref_spp,
                              sdf_filename='', resx=scene_config.resx, resy=scene_config.resy, **mts_args)
+    ref_scene_depth = mi.load_file(ref_scene_name, integrator='sdf_depth_reparam', spp=ref_spp,
+                            sdf_filename='', resx=scene_config.resx, resy=scene_config.resy, **mts_args)
     render_folder = join(RENDER_DIR, scene_config.scene, scene_config.name, config.integrator, 'ref')
     os.makedirs(render_folder, exist_ok=True)
     
     for sensor_idx, sensor in enumerate(scene_config.sensors):
         set_sensor_res(sensor, mi.ScalarVector2i(scene_config.resx, scene_config.resy))
         fn = join(render_folder, f'ref-{sensor_idx:02d}.exr')
+        fn_depth = join(render_folder, f'ref-{sensor_idx:02d}-depth.exr')
         # 渲染参考图像时直接覆盖原有图像
         # if os.path.isfile(fn) and not force:
         #     if verbose:
@@ -29,7 +32,9 @@ def render_reference_images(scene_config, config, ref_spp=1024, force=False, ver
         # else:
         #     img = mi.render(ref_scene, sensor=sensor, seed=sensor_idx + 41, spp=ref_spp)
         img = mi.render(ref_scene, sensor=sensor, seed=sensor_idx + 41, spp=ref_spp)
+        img_depth = mi.render(ref_scene_depth, sensor=sensor, seed=sensor_idx + 41, spp=ref_spp)
         mi.util.write_bitmap(fn, img[..., :3], write_async=False)
+        mi.util.write_bitmap(fn_depth, img_depth[..., :3], write_async=False)
 
 def copy_reference_images_to_output_dir(scene_config, config, output_dir):
     """Copies the reference images to the output directory and returns a list of them"""
@@ -38,7 +43,9 @@ def copy_reference_images_to_output_dir(scene_config, config, output_dir):
     render_folder = join(RENDER_DIR, scene_config.scene, scene_config.name, config.integrator, 'ref')
     for idx in range(len(scene_config.sensors)):
         ref_name = join(output_dir, f'ref-{idx:02d}.exr')
+        ref_name_depth = join(output_dir, f'ref-{idx:02d}-depth.exr')
         copyfile(join(render_folder, f'ref-{idx:02d}.exr'), ref_name)
+        copyfile(join(render_folder, f'ref-{idx:02d}-depth.exr'), ref_name_depth)
         ref_image_paths.append(ref_name)
     return ref_image_paths
 

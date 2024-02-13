@@ -1,4 +1,5 @@
 import integrators.sdf_silhouette_reparam
 import integrators.sdf_simple_shading_reparam
 import integrators.sdf_direct_reparam
+import integrators.sdf_depth_reparam
 import integrators.sdf_prb_reparam
