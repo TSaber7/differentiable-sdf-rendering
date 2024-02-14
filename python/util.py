@@ -148,6 +148,7 @@ def set_sensor_res(sensor, res):
     params = mi.traverse(sensor)
     params['film.size'] = res
     params.update()
+    sensor.parameters_changed()
 
 def dump_metadata(config, opt_config, extra=None, fn='test.json'):
     """Dumps out config and optimization config to a JSON file"""
