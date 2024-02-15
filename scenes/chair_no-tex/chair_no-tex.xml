@@ -20,6 +20,6 @@
 	</bsdf> -->
 	<default name="main_bsdf_name" value="red-bsdf"/>
 
-	<default name="shape_file" value="chair-shape.xml"/>
+	<default name="shape_file" value="chair_no-tex-shape.xml"/>
 	<include filename="$shape_file"/>
 </scene>
