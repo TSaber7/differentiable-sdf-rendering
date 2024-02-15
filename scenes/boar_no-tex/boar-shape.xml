@@ -1,0 +1,25 @@
+<scene version="2.1.0">
+	<path value="../extra/"/>
+	<default name="main_bsdf_name" value="red-bsdf"/>
+
+	<!-- <bsdf type="normalmap" id="boar-mat">
+		<texture name="normalmap" type="bitmap">
+			<boolean name="raw" value="true"/>
+			<string name="filename" value="textures/boar_n.png"/>
+		</texture>
+		<bsdf type="principled">
+			<texture type="bitmap" name="base_color">
+				<string name="filename" value="textures/boar.jpg"/>
+			</texture>
+			<float name="specular" value="1.000000"/>
+			<float name="roughness" value="0.500000"/>
+		</bsdf>
+	</bsdf> -->
+	<shape type="ply">
+        <transform name="to_world">
+            <translate x="0.5" y="0.5" z="0.5"/>
+        </transform>
+		<string name="filename" value="meshes/Rz_119_Dzik_odlew_gipsowy_73K_edit05w.ply"/>
+		<ref id="$main_bsdf_name" name="bsdf"/>
+	</shape>
+</scene>
