@@ -1,0 +1,24 @@
+<scene version="2.1.0">
+	<path value="../"/>
+	<path value="../extra/"/>
+
+	<bsdf type="normalmap" id="bench-mat">
+		<texture name="normalmap" type="bitmap">
+			<boolean name="raw" value="true"/>
+			<string name="filename" value="textures/bench_n.jpg"/>
+		</texture>
+        <bsdf type="diffuse">
+            <texture type="bitmap" name="reflectance">
+                <string name="filename" value="textures/bench.jpg"/>
+            </texture>
+        </bsdf>
+	</bsdf>
+
+	<shape type="ply">
+		<ref id="bench-mat" name="bsdf"/>
+        <string name="filename" value="meshes/bench.ply"/>
+        <transform name="to_world">
+            <translate x="0.5" y="0.5" z="0.5"/>
+        </transform>
+	</shape>
+</scene>

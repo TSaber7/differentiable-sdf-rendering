@@ -1,0 +1,6 @@
+<scene version="2.1.0">
+	<shape type="ply">
+		<string name="filename" value="meshes/target.ply"/>
+		<ref id="$main_bsdf_name" name="bsdf"/>
+	</shape>
+</scene>

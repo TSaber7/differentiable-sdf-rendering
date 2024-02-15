@@ -1,0 +1,21 @@
+<scene version="2.1.0">
+	<bsdf type="diffuse" id="mat-1D_METAL">
+		<rgb value="0.6 0.5 0.1" name="reflectance"/>
+	</bsdf>
+	<bsdf type="twosided" id="mat-1D_ROPE">
+		<bsdf type="diffuse">
+			<rgb value="0.785714 0.785714 0.785714" name="reflectance"/>
+		</bsdf>
+	</bsdf>
+	<bsdf type="diffuse" id="mat-1D_MAINWHITE">
+		<rgb value="0.819048 0.716675 0.669997" name="reflectance"/>
+	</bsdf>
+		<bsdf type="diffuse" id="mat-1D_Cloth">
+		<texture type="bitmap" name="reflectance">
+			<string name="filename" value="textures/chair_cloth.png"/>
+		</texture>
+	</bsdf>
+
+	<default name="geo_file" value="chair-geo.xml"/>
+	<include filename="$geo_file"/>
+</scene>

@@ -1,0 +1,12 @@
+<scene version="2.1.0">
+	<path value="../"/>
+	<path value="../extra/"/>
+	<default name="main_bsdf_name" value="red-bsdf"/>
+	<shape type="ply">
+		<ref id="$main_bsdf_name" name="bsdf"/>
+		<string name="filename" value="meshes/philo.ply"/>
+        <transform name="to_world">
+            <translate x="0.5" y="0.5" z="0.5"/>
+        </transform>
+	</shape>
+</scene>

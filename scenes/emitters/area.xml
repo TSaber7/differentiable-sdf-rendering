@@ -1,0 +1,14 @@
+<scene version="2.1.0">
+
+    <shape type="rectangle">
+        <transform name="to_world">
+            <rotate x="1" y="0" z="0" angle="90"/>
+            <translate y="3"/>
+        </transform>
+
+        <emitter type="area">
+            <spectrum name="radiance" value="5"/>
+        </emitter>
+    </shape>
+
+</scene>

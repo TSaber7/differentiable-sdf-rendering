@@ -1,0 +1,7 @@
+<scene version="2.1.0">
+	<integrator type="direct">
+		<integer name="bsdf_samples" value="1"/>
+		<integer name="emitter_samples" value="1"/>
+	</integrator>
+</scene>
+

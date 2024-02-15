@@ -21,12 +21,12 @@ def render_reference_images(scene_config, config, ref_spp=1024, force=False, ver
     for sensor_idx, sensor in enumerate(scene_config.sensors):
         set_sensor_res(sensor, mi.ScalarVector2i(scene_config.resx, scene_config.resy))
         fn = join(render_folder, f'ref-{sensor_idx:02d}.exr')
-        if os.path.isfile(fn) and not force:
-            if verbose:
-                print(f'File exists, not rendering of {fn}')
-        else:
-            img = mi.render(ref_scene, sensor=sensor, seed=sensor_idx + 41, spp=ref_spp)
-            mi.util.write_bitmap(fn, img[..., :3], write_async=False)
+        # if os.path.isfile(fn) and not force:
+        #     if verbose:
+        #         print(f'File exists, not rendering of {fn}')
+        # else:
+        img = mi.render(ref_scene, sensor=sensor, seed=sensor_idx + 41, spp=ref_spp)
+        mi.util.write_bitmap(fn, img[..., :3], write_async=False)
 
 def copy_reference_images_to_output_dir(scene_config, config, output_dir):
     """Copies the reference images to the output directory and returns a list of them"""

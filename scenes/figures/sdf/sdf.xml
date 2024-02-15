@@ -1,0 +1,44 @@
+<scene version="2.1.0">
+	<path value="../../"/>
+	<path value="../../extra/"/>
+	<path value="../../bunny/"/>
+	<include filename="common.xml"/>
+	<default name="emitter_scene" value="emitters/cathedral.xml"/>
+	<default name="mesh_path" value="meshes/xyzrgb_dragon.ply"/>
+	<default name="mesh_type" value="ply"/>
+	<default name="rect_scale" value="0.5"/>
+	<default name="rotate_y" value="20"/>
+    <include filename="$emitter_scene"/>
+
+    <!-- <bsdf type="thindielectric" id="plastic_bsdf">
+        <rgb name="specular_transmittance" value="0.7, 0.8, 0.95"/>
+    </bsdf> -->
+
+    <bsdf type="roughplastic" id="plastic_bsdf">
+        <float name="alpha" value="0.1" />
+        <rgb name="diffuse_reflectance" value="0.25, 0.5, 0.8"/>
+    </bsdf>
+
+	<default name="main_bsdf_name" value="plastic_bsdf"/>
+
+	<shape type="$mesh_type">
+		<ref id="$main_bsdf_name" name="bsdf"/>
+        <string name="filename" value="$mesh_path"/>
+        <transform name="to_world">
+            <translate x="0.5" y="0.5" z="0.5"/>
+        </transform>
+	</shape>
+
+    <shape type="rectangle">
+        <transform name="to_world">
+            <scale value="$rect_scale"/>
+            <rotate y="1" angle="$rotate_y"/>
+            <translate x="0.5" y="0.5" z="0.5"/>
+        </transform>
+        <bsdf type="diffuse">
+            <texture type="bitmap" name="reflectance">
+                <string name="filename" value="textures/white.png"/>
+            </texture>
+        </bsdf>
+    </shape>
+</scene>

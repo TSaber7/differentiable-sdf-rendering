@@ -1,0 +1,61 @@
+<scene version="2.1.0">
+    <path value="../"/>
+
+    <default name="sensors_filename" value="empty.xml"/>
+    <include filename="common.xml"/>
+
+    <sampler type="independent" id="sampler">
+        <integer name="sample_count" value="$spp"/>
+    </sampler>
+
+    <film type="hdrfilm" id="film">
+        <integer name="width" value="$resx"/>
+        <integer name="height" value="$resy"/>
+        <string name="pixel_format" value="$pixel_format" />
+        <rfilter type="$pixel_filter" />
+        <boolean name="sample_border" value="$sample_border" />
+        <!-- <boolean name="detach_weight_sum" value="$detach_weight_sum" /> -->
+    </film>
+
+    <sensor type="perspective">
+        <float name="fov" value="39"/>
+        <transform name="to_world">
+            <lookat origin="0.5, 0.5, 2.5" target="0.5, 0.5, 0.5" up="0, 1, 0"/>
+        </transform>
+
+        <ref id="film"/>
+        <ref id="sampler"/>
+    </sensor>
+
+
+    <emitter type="envmap">
+        <string name="filename" value="textures/cathedral.hdr" />
+        <float name="scale" value="0.5"/>
+        <transform name="to_world">
+            <rotate x="0.0" y="1.0" z="0.0" angle="65"/>
+        </transform>
+    </emitter>
+
+    <bsdf type="twosided" id="red">
+        <bsdf type="roughplastic">
+            <!-- <rgb name="diffuse_reflectance" value="0.8, 0.75, 0.2"/> -->
+            <rgb name="diffuse_reflectance" value="0.8, 0.1, 0.2"/>
+
+            <!-- <string name="material" value="Au"/> -->
+            <float name="alpha" value="0.15"/>
+        </bsdf>
+    </bsdf>
+    <default name="main_bsdf_name" value="red"/>
+    <default name="shape_file" value="dummysdf.xml"/>
+    <include filename="$shape_file"/>
+
+    <shape type="rectangle">
+        <transform name="to_world">
+            <scale value="10000"/>
+            <translate z="-0.3" />
+        </transform>
+        <bsdf type="diffuse">
+            <rgb name="reflectance" value="0.8, 0.8, 0.9"/>
+        </bsdf>
+    </shape>
+</scene>

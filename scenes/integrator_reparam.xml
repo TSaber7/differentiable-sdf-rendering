@@ -1,0 +1,10 @@
+<scene version="2.1.0">
+	<default name="num_aux_rays" value="16"/>
+	<default name="max_depth" value="4"/>
+	<default name="integrator" value="prbreparam"/>
+	<integrator type="$integrator">
+		<integer name="num_aux_rays" value="$num_aux_rays"/>
+		<integer name="max_depth" value="$max_depth"/>
+	</integrator>
+</scene>
+

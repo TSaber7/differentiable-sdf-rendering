@@ -1,0 +1,25 @@
+
+<scene version="2.1.0">
+	<path value="../"/>
+	<path value="../extra/"/>
+
+	<default name="sensors_filename" value="bench-sensors.xml"/>
+
+	<include filename="common.xml"/>
+	<default name="emitter_scene" value="emitters/lythwood.xml"/>
+    <include filename="$emitter_scene"/>
+	<default name="shape_file" value="bench-shape.xml"/>
+
+	<bsdf type="diffuse" id="main-bsdf">
+        <texture type="volume" name="reflectance">
+            <volume type="gridvolume" name="volume">
+                <string name="filename" value="textures/red.vol"/>
+            </volume>
+        </texture>
+	</bsdf>
+    <default name="main_bsdf_name" value="main-bsdf"/>
+
+	<include filename="$shape_file"/>
+</scene>
+
+

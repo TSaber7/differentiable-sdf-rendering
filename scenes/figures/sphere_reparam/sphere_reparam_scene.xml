@@ -1,0 +1,45 @@
+<scene version="2.1.0">
+	<path value="../../"/>
+	<!-- <include filename="common.xml"/> -->
+
+	<default name="spp" value="32"/>
+	<default name="resx" value="512"/>
+	<default name="resy" value="512"/>
+
+	<sampler type="independent" id="sampler">
+		<integer name="sample_count" value="$spp"/>
+	</sampler>
+
+	<film type="hdrfilm" id="film">
+		<integer name="width" value="$resx"/>
+		<integer name="height" value="$resy"/>
+		<string name="pixel_format" value="rgba" />
+		<rfilter type="gaussian" />
+		<boolean name="sample_border" value="false" />
+	</film>
+	<sensor type="spherical">
+		<transform name="to_world">
+			<translate x="0.84132" y="0.2" z="-0.70863945"/>
+		</transform>
+
+		<ref id="film"/>
+		<ref id="sampler"/>
+	</sensor>
+
+	<integrator type="silhouette2">
+		<boolean name="use_aovs" value="true"/>
+	</integrator>
+
+    <emitter type="constant">
+        <rgb name="radiance" value="0.4, 0.6, 1.4"/>
+    </emitter>
+
+	<shape type="sphere" id="dummy_sdf_">
+		<transform name="to_world">
+			<scale value="0.0000001"/>
+			<translate z="0"/>
+			<translate y="20"/>
+			<translate x="0"/>
+		</transform>
+	</shape>
+</scene>

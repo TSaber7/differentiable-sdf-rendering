@@ -1,0 +1,58 @@
+<scene version="2.1.0">
+	<path value="../"/>
+	<include filename="common.xml"/>
+	<default name="emitter_scene" value="emitters/vmf.xml"/>
+    <include filename="$emitter_scene"/>
+<!--
+    <shape type="rectangle">
+        <transform name="to_world">
+			<scale value="0.025"/>
+            <rotate x="0" y="1" z="0" angle="170"/>
+            <translate z="2"/>
+            <translate y="1"/>
+            <translate x="1"/>
+        </transform>
+
+        <emitter type="area">
+            <spectrum name="radiance" value="1000"/>
+        </emitter>
+    </shape> -->
+
+    <!-- <emitter type="constant">
+	</emitter> -->
+
+	<!-- <bsdf type="twosided" id="red">
+		<bsdf type="diffuse">
+			<rgb name="reflectance" value="0.99, 0.5, 0.5"/>
+		</bsdf>
+	</bsdf> -->
+
+
+	<bsdf type="twosided" id="red">
+		<bsdf type="roughplastic">
+			<rgb name="diffuse_reflectance" value="0.99, 0.5, 0.5"/>
+		</bsdf>
+	</bsdf>
+	<default name="main_bsdf_name" value="red"/>
+
+	<default name="shape_file" value="dummysdf.xml"/>
+	<include filename="$shape_file"/>
+
+	<shape type="rectangle">
+		<transform name="to_world">
+			<scale value="10000"/>
+			<translate z="-1" />
+		</transform>
+		<bsdf type="diffuse">
+			<rgb name="reflectance" value="0.8, 0.8, 0.8"/>
+		</bsdf>
+	</shape>
+
+	<!-- <shape type="sphere">
+		<transform name="to_world">
+			<scale value="0.5"/>
+			<translate x="0.5" y="0.5" z="0.5"/>
+		</transform>
+	</shape> -->
+
+</scene>

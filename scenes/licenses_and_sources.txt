@@ -1,0 +1,52 @@
+The meshes and textures in this folder are of various origins. All of them have
+licenses that allow academic use. In the following the sources of the scenes
+used in the "Differentiable Signed Distance Function Rendering" paper are
+provided (without guarantee, please check the sources yourself before using
+these scenes.)
+
+Bunny/Dragon/xyzrgb_dragon: Stanford 3D scanning repository
+http://graphics.stanford.edu/data/3Dscanrep/
+
+Bench scene (teaser):
+https://sketchfab.com/3d-models/a-bench-6251dd76e8fb4d698b48f9efe66a99b8
+Virtual Museums of Malopolska
+CC-0
+
+Chair:
+https://www.blendswap.com/blend/8261
+Blendswap user 1DInc
+CC-0
+
+Head:
+http://casual-effects.com/data/index.html
+Morgan McGuire
+CC-BY
+
+Hotdogs:
+https://www.blendswap.com/blend/23962
+Blendswap user erickfree
+CC-0
+
+Boar:
+https://sketchfab.com/3d-models/wild-boar-a-plaster-cast-of-an-antique-figure-34a9f999ce2f4e47a13b05b65473ad23
+Virtual Museums of Malopolska
+CC-0
+
+Cranium:
+https://3d.si.edu/
+Smithsonian
+CC-0
+
+Philosopher:
+https://www.myminifactory.com/object/3d-print-statue-of-a-seated-philosopher-109625
+SMK - Statens Museum for Kunst
+CC-0
+
+Lego:
+https://blendswap.com/blend/11490
+Blendswap user Heinzelnisse
+CC-BY-NC
+
+Various environment maps:
+https://polyhaven.com/hdris
+CC-0

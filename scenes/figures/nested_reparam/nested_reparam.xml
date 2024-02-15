@@ -1,0 +1,43 @@
+<scene version="2.1.0">
+	<default name="integrator" value="sdf_direct_reparam"/>
+	<default name="integrator_file" value="integrator_sdf.xml"/>
+	<default name="sensors_filename" value="empty.xml"/>
+
+	<path value="../../"/>
+	<include filename="common.xml"/>
+
+	<sampler type="independent" id="sampler">
+		<integer name="sample_count" value="$spp"/>
+	</sampler>
+
+	<film type="hdrfilm" id="film">
+		<integer name="width" value="$resx"/>
+		<integer name="height" value="$resy"/>
+		<string name="pixel_format" value="$pixel_format" />
+		<rfilter type="$pixel_filter" />
+		<boolean name="sample_border" value="$sample_border" />
+	</film>
+
+	<sensor type="perspective">
+		<float name="fov" value="39"/>
+		<transform name="to_world">
+			<lookat origin="0.5, 0.5, 2.8" target="0.5, 0.5, 0.5" up="0, 1, 0"/>
+		</transform>
+		<ref id="film"/>
+		<ref id="sampler"/>
+	</sensor>
+
+	<sensor type="perspective">
+		<float name="fov" value="39"/>
+		<transform name="to_world">
+			<lookat origin="-1.3, 0.5, 1.1" target="0.5, 0.5, 0.5" up="0, 1, 0"/>
+		</transform>
+		<ref id="film"/>
+		<ref id="sampler"/>
+	</sensor>
+
+	<default name="emitter_scene" value="emitters/vmf.xml"/>
+	<include filename="$emitter_scene"/>
+	<default name="main_bsdf_name" value="red-bsdf"/>
+	<include filename="dummysdf.xml"/>
+</scene>

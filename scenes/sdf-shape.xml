@@ -1,0 +1,12 @@
+<scene version="2.1.0">
+	<!--<include filename="common-sdf.xml"/>-->
+	<shape type="sdf">
+		<!--<ref id="sdf-bsdf" name="bsdf"/>-->
+		<ref id="$main_bsdf_name" name="bsdf"/>
+		<volume id="sdf" name="sdf" type="gridvolume">
+            <string name="filename" value="$sdf_filename"/>
+        </volume>
+        <float name="edge_epsilon" value="$edge_epsilon"/>
+		<boolean name="refined_intersection" value="$refined_intersection"/>
+	</shape>
+</scene>

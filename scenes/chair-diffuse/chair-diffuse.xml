@@ -1,0 +1,22 @@
+<scene version="2.1.0">
+	<path value="../"/>
+	<default name="sensors_filename" value="sensors.xml"/>
+	<include filename="common.xml"/>
+	<default name="emitter_scene" value="emitters/cathedral.xml"/>
+	<include filename="$emitter_scene"/>
+
+
+	<bsdf type="diffuse"  id="main-bsdf">
+        <texture type="volume" name="reflectance">
+            <volume type="gridvolume" name="volume">
+                <string name="filename" value="textures/red.vol"/>
+            </volume>
+        </texture>
+	</bsdf>
+    <default name="main_bsdf_name" value="main-bsdf"/>
+
+	<path value="../chair"/>
+
+	<default name="shape_file" value="chair-diffuse-shape.xml"/>
+	<include filename="$shape_file"/>
+</scene>

@@ -1,0 +1,62 @@
+<scene version="2.1.0">
+	<path value="../../"/>
+	<path value="../../bunny/"/>
+
+	<default name="spp" value="32"/>
+	<default name="resx" value="64"/>
+	<default name="resy" value="64"/>
+	<default name="max_depth" value="8"/>
+	<default name="use_mis" value="false"/>
+	<default name="use_aovs" value="false"/>
+	<default name="use_antithetic_sampling" value="false"/>
+	<default name="integrator" value="sdf_direct_reparam"/>
+	<default name="integrator_file" value="integrator_sdf.xml"/>
+	<default name="use_mis" value="false"/>
+	<default name="hide_emitters" value="false"/>
+	<default name="sdf_filename" value=""/>
+
+	<include filename="$integrator_file"/>
+
+	<sensor type="perspective">
+		<string name="fov_axis" value="x"/>
+		<float name="fov" value="38"/>
+		<float name="near_clip" value="0.1"/>
+		<float name="far_clip" value="100"/>
+		<transform name="to_world">
+			<lookat origin="-0.3, 0.8, 0.4" target="0.45, 0.7, 0.3" up="0, 1, 0"/>
+		</transform>
+		<sampler type="independent">
+			<integer name="sample_count" value="$spp"/>
+		</sampler>
+		<film type="hdrfilm">
+			<integer name="width" value="$resx"/>
+			<integer name="height" value="$resy"/>
+			<boolean name="sample_border" value="true"/>
+			<rfilter type="gaussian"/>
+		</film>
+	</sensor>
+
+	<emitter type="envmap">
+		<string name="filename" value="textures/cathedral.hdr" />
+		<float name="scale" value="0.5"/>
+        <transform name="to_world">
+            <rotate x="0.0" y="1.0" z="0.0" angle="20"/>
+        </transform>
+	</emitter>
+
+	<!-- <bsdf type="thindielectric" id="plastic_bsdf">
+        <rgb name="specular_transmittance" value="0.7, 0.8, 0.95"/>
+    </bsdf> -->
+
+	<bsdf type="roughplastic" id="plastic_bsdf">
+		<float name="alpha" value="0.1" />
+		<rgb name="diffuse_reflectance" value="0.15, 0.3, 0.6"/>
+	</bsdf>
+
+	<bsdf type="diffuse" id="diffuse_bsdf">
+		<rgb name="reflectance" value="0.18, 0.4, 0.7"/>
+	</bsdf>
+
+	<default name="main_bsdf_name" value="diffuse_bsdf"/>
+	<include filename="dummysdf.xml"/>
+</scene>

@@ -1,0 +1,73 @@
+<scene version="2.1.0">
+	<path value="../../"/>
+	<path value="../../bunny/"/>
+
+	<default name="spp" value="32"/>
+	<default name="resx" value="64"/>
+	<default name="resy" value="64"/>
+	<default name="max_depth" value="8"/>
+	<default name="use_mis" value="false"/>
+	<default name="use_aovs" value="false"/>
+	<default name="integrator" value="sdf_direct_reparam"/>
+	<default name="integrator_file" value="integrator_sdf.xml"/>
+	<default name="use_mis" value="false"/>
+	<default name="hide_emitters" value="false"/>
+	<default name="use_antithetic_sampling" value="false"/>
+	<default name="detach_weight_sum" value="false"/>
+	<default name="sdf_filename" value=""/>
+
+	<include filename="$integrator_file"/>
+
+	<sensor type="perspective">
+		<string name="fov_axis" value="x"/>
+		<float name="fov" value="39"/>
+		<float name="near_clip" value="0.1"/>
+		<float name="far_clip" value="100"/>
+		<transform name="to_world">
+			<!-- <lookat origin="-0.3, 0.8, 0.4" target="0.45, 0.7, 0.3" up="0, 1, 0"/> -->
+			<!-- <lookat origin="-0.1, 0.8, 1.8" target="0.45, 0.7, 0.5" up="0, 1, 0"/> -->
+			<lookat origin="0.5, 0.6, 2.3" target="0.5, 0.5, 0.5" up="0, 1, 0"/>
+			<!-- <lookat origin="2.0, 0.6, 0.5" target="0.5, 0.5, 0.5" up="0, 1, 0"/> -->
+		</transform>
+		<sampler type="independent">
+			<integer name="sample_count" value="$spp"/>
+		</sampler>
+		<film type="hdrfilm">
+			<integer name="width" value="$resx"/>
+			<integer name="height" value="$resy"/>
+			<boolean name="sample_border" value="true"/>
+			<boolean name="detach_weight_sum" value="$detach_weight_sum"/>
+			<rfilter type="gaussian"/>
+
+		</film>
+	</sensor>
+
+	<emitter type="envmap">
+		<string name="filename" value="textures/vmf.exr" />
+		<!-- <float name="scale" value="0.5"/> -->
+        <transform name="to_world">
+            <rotate x="0.0" y="1.0" z="0.0" angle="-30"/>
+        </transform>
+	</emitter>
+
+	<bsdf type="roughplastic" id="plastic_bsdf">
+		<float name="alpha" value="0.1" />
+		<rgb name="diffuse_reflectance" value="0.15, 0.3, 0.6"/>
+	</bsdf>
+
+	<bsdf type="diffuse" id="diffuse_bsdf">
+		<rgb name="reflectance" value="0.18, 0.4, 0.7"/>
+	</bsdf>
+
+	<bsdf type="twosided" id="red-bsdf">
+		<bsdf type="diffuse">
+			<rgb name="reflectance" value="0.8, 0.2, 0.2"/>
+		</bsdf>
+	</bsdf>
+
+	<default name="main_bsdf_name" value="red-bsdf"/>
+
+	<shape type="dummy" id="dummy_sdf_">
+		<ref id="$main_bsdf_name" name="bsdf"/>
+	</shape>
+</scene>

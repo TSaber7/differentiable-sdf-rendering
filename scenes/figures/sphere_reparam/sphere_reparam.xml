@@ -1,0 +1,84 @@
+<scene version="2.1.0">
+	<path value="../../"/>
+	<path value="../../bunny/"/>
+    <default name="integrator_file" value="empty.xml"/>
+    <default name="sensor_file" value="empty.xml"/>
+
+	<default name="spp" value="32"/>
+	<default name="resx" value="512"/>
+	<default name="resy" value="512"/>
+
+	<sampler type="independent" id="sampler">
+		<integer name="sample_count" value="$spp"/>
+	</sampler>
+
+	<film type="hdrfilm" id="film">
+		<integer name="width" value="$resx"/>
+		<integer name="height" value="$resy"/>
+		<string name="pixel_format" value="rgba" />
+		<rfilter type="gaussian" />
+		<boolean name="sample_border" value="true" />
+	</film>
+
+	<sensor type="perspective">
+		<float name="fov" value="39"/>
+		<transform name="to_world">
+			<lookat origin="-0.35, 0.5, 3.0" target="0.0, 0.0, 0.0" up="0, 1, 0"/>
+		</transform>
+
+		<ref id="film"/>
+		<ref id="sampler"/>
+	</sensor>
+
+	<!-- <include filename="common.xml"/> -->
+	<!-- <default name="emitter_scene" value="emitters/constant.xml"/> -->
+    <!-- <include filename="$emitter_scene"/> -->
+
+	<emitter type="envmap">
+		<string name="filename" value="textures/museum.hdr" />
+		<float name="scale" value="2.0"/>
+        <transform name="to_world">
+            <rotate x="0.0" y="1.0" z="0.0" angle="90"/>
+        </transform>
+	</emitter>
+
+	<integrator type="path">
+		<integer name="max_depth" value="16"/>
+        <boolean name="hide_emitters" value="true"/>
+	</integrator>
+
+
+    <!-- <bsdf type="thindielectric" id="plastic_bsdf">
+        <rgb name="specular_transmittance" value="0.7, 0.8, 0.95"/>
+    </bsdf> -->
+
+    <bsdf type="roughplastic" id="plastic_bsdf">
+        <float name="alpha" value="0.1" />
+        <rgb name="diffuse_reflectance" value="0.25, 0.5, 0.8"/>
+    </bsdf>
+
+	<default name="main_bsdf_name" value="plastic_bsdf"/>
+
+    <shape type="sphere">
+        <transform name="to_world">
+            <scale z="-1"/>
+            <rotate y="1" angle="90"/>
+            <rotate x="1" angle="90"/>
+        </transform>
+
+        <bsdf type="mask">
+            <bsdf type="twosided">
+                <bsdf type="roughplastic">
+                    <texture type="bitmap" name="diffuse_reflectance">
+                        <string name="filename" value="textures/white.png"/>
+                    </texture>
+                </bsdf>
+            </bsdf>
+            <texture type="bitmap" name="opacity">
+                <string name="filename" value="textures/white.png"/>
+            </texture>
+        </bsdf>
+    </shape>
+
+
+</scene>

@@ -1,0 +1,5 @@
+<scene version="2.1.0">
+	<emitter type="envmap">
+		<string name="filename" value="textures/lythwood.exr" />
+	</emitter>
+</scene>

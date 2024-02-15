@@ -1,0 +1,8 @@
+<scene version="2.1.0">
+	<default name="sdf_filename" value=""/>
+	<bsdf type="twosided" id="sdf-bsdf">
+		<bsdf type="diffuse">
+			<rgb name="reflectance" value="0.5, 0.5, 0.5"/>
+		</bsdf>
+	</bsdf>
+</scene>

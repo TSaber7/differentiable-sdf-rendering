@@ -1,0 +1,5 @@
+<scene version="2.1.0">
+	<emitter type="constant">
+		<rgb name="radiance" value="1.0"/>
+	</emitter>
+</scene>

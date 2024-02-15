@@ -1,0 +1,27 @@
+<scene version="2.1.0">
+	<bsdf type="principled" id="main-bsdf">
+		<texture type="volume" name="base_color">
+			<volume type="gridvolume" name="volume">
+				<transform name="to_world">
+					<translate x="-0.5" y="-0.5" z="-0.5"/>
+					<rotate y="1" angle="$angle"/>
+					<translate x="0.5" y="0.5" z="0.5"/>
+					<translate y="$voffset"/>
+				</transform>
+				<string name="filename" value="textures/red.vol"/>
+			</volume>
+		</texture>
+		<texture type="volume" name="roughness">
+			<volume type="gridvolume" name="volume">
+				<transform name="to_world">
+					<translate x="-0.5" y="-0.5" z="-0.5"/>
+					<rotate y="1" angle="$angle"/>
+					<translate x="0.5" y="0.5" z="0.5"/>
+					<translate y="$voffset"/>
+				</transform>
+				<string name="filename" value="textures/gray.vol"/>
+			</volume>
+		</texture>
+		<float name="specular" value="1.000000"/>
+	</bsdf>
+</scene>

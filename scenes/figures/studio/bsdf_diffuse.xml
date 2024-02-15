@@ -1,0 +1,15 @@
+<scene version="2.1.0">
+    <bsdf type="diffuse" id="main-bsdf">
+        <texture type="volume" name="reflectance">
+            <volume type="gridvolume" name="volume">
+                <transform name="to_world">
+                    <translate x="-0.5" y="-0.5" z="-0.5"/>
+                    <rotate y="1" angle="$angle"/>
+                    <translate x="0.5" y="0.5" z="0.5"/>
+                    <translate y="$voffset"/>
+                </transform>
+                <string name="filename" value="$albedo_filename"/>
+            </volume>
+        </texture>
+    </bsdf>
+</scene>

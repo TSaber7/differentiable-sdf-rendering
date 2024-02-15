@@ -1,0 +1,70 @@
+<scene version="2.1.0">
+	<path value="../"/>
+	<path value="../plane_area/"/>
+
+	<default name="max_depth" value="3"/>
+    <default name="sensors_filename" value="empty.xml"/>
+
+	<include filename="common.xml"/>
+
+	<sampler type="independent" id="sampler">
+		<integer name="sample_count" value="$spp"/>
+	</sampler>
+
+	<film type="hdrfilm" id="film">
+		<integer name="width" value="$resx"/>
+		<integer name="height" value="$resy"/>
+		<string name="pixel_format" value="$pixel_format" />
+		<rfilter type="$pixel_filter" />
+		<boolean name="sample_border" value="$sample_border" />
+		<!-- <boolean name="detach_weight_sum" value="$detach_weight_sum" /> -->
+	</film>
+
+	<sensor type="perspective">
+		<float name="fov" value="40"/>
+		<transform name="to_world">
+			<lookat origin="-1.5, 0.5, 1.9" target="0.5, 0.5, 0.0" up="0, 1, 0"/>
+		</transform>
+		<ref id="film"/>
+		<ref id="sampler"/>
+	</sensor>
+
+	<emitter type="envmap">
+		<string name="filename" value="textures/museum.hdr" />
+		<float name="scale" value="3"/>
+	</emitter>
+
+	<bsdf type="twosided" id="red">
+		<bsdf type="roughplastic">
+        	<rgb name="diffuse_reflectance" value="0.25, 0.5, 0.8"/>
+			<float name="alpha" value="0.2"/>
+		</bsdf>
+	</bsdf>
+	<default name="main_bsdf_name" value="red"/>
+	<default name="shape_file" value="dummysdf.xml"/>
+	<include filename="$shape_file"/>
+	<shape type="rectangle">
+		<transform name="to_world">
+			<scale value="3, 0.8, 1"/>
+			<translate z="-0.05" />
+			<translate y="0.4" />
+		</transform>
+		<bsdf type="roughconductor">
+			<string name="material" value="Al"/>
+			<float name="alpha" value="0.025"/>
+		</bsdf>
+	</shape>
+
+	<shape type="rectangle">
+		<transform name="to_world">
+			<scale value="3, 0.85, 1"/>
+			<translate z="-0.06" />
+			<translate y="0.4" />
+		</transform>
+		<bsdf type="roughplastic">
+			<rgb name="diffuse_reflectance" value="0.05"/>
+			<float name="alpha" value="0.025"/>
+		</bsdf>
+	</shape>
+
+</scene>

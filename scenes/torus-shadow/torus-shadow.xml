@@ -1,0 +1,61 @@
+<scene version="2.1.0">
+	<path value="../"/>
+
+
+
+	<default name="sensors_filename" value="empty.xml"/>
+	<include filename="common.xml"/>
+
+	<sampler type="independent" id="sampler">
+		<integer name="sample_count" value="$spp"/>
+	</sampler>
+
+	<film type="hdrfilm" id="film">
+		<integer name="width" value="$resx"/>
+		<integer name="height" value="$resy"/>
+		<string name="pixel_format" value="$pixel_format" />
+		<rfilter type="$pixel_filter" />
+		<boolean name="sample_border" value="true" />
+	</film>
+	<sensor type="perspective">
+		<float name="fov" value="39"/>
+		<transform name="to_world">
+			<lookat origin="0.5, 0.5, 2.8" target="0.5, 0.5, 0.5" up="0, 1, 0"/>
+		</transform>
+
+		<ref id="film"/>
+		<ref id="sampler"/>
+	</sensor>
+
+	<sensor type="perspective">
+		<float name="fov" value="39"/>
+		<transform name="to_world">
+			<lookat origin="1.2, 0.5, 2.2" target="0.5, 0.5, 0.5" up="0, 1, 0"/>
+		</transform>
+
+		<ref id="film"/>
+		<ref id="sampler"/>
+	</sensor>
+
+	<emitter type="envmap">
+		<string name="filename" value="textures/cathedral.hdr" />
+		<float name="scale" value="0.5"/>
+        <transform name="to_world">
+            <rotate x="0.0" y="1.0" z="0.0" angle="60"/>
+        </transform>
+	</emitter>
+
+	<default name="main_bsdf_name" value="red-bsdf"/>
+	<default name="shape_file" value="torus-shadow-shape.xml"/>
+	<include filename="$shape_file"/>
+
+	<shape type="rectangle">
+		<transform name="to_world">
+			<scale value="10000"/>
+			<translate z="-1" />
+		</transform>
+		<bsdf type="diffuse">
+			<rgb name="reflectance" value="0.8, 0.8, 0.8"/>
+		</bsdf>
+	</shape>
+</scene>

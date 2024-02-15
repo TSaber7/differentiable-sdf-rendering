@@ -1,0 +1,100 @@
+<scene version="2.1.0">
+	<path value="../../"/>
+
+	<default name="spp" value="128"/>
+	<default name="resx" value="640"/>
+	<default name="resy" value="640"/>
+	<default name="angle" value="-130"/>
+	<default name="voffset" value="-0.05"/>
+	<default name="fov_axis" value="x"/>
+
+	<default name="sdf_filename" value="sdfs/bunny_64.vol"/>
+	<default name="albedo_filename" value="textures/red.vol"/>
+	<default name="bsdf_file" value="bsdf_diffuse.xml"/>
+	<default name="shape_file" value="sdf_shape.xml"/>
+	<default name="extra_path" value=""/>
+
+	<!-- default red BSDF -->
+	<bsdf type="twosided" id="red-bsdf">
+		<bsdf type="diffuse">
+			<rgb name="reflectance" value="0.8, 0.2, 0.2"/>
+		</bsdf>
+	</bsdf>
+
+	<path value="$extra_path"/>
+
+	<!-- Render this scene using the prb_reparam path tracing integrator -->
+	<integrator type="sdf_prb_reparam">
+		<integer name="max_depth" value="16"/>
+	 	<string name="sdf_filename" value="$sdf_filename"/>
+		<transform name="sdf_to_world">
+			<translate x="-0.5" y="-0.5" z="-0.5"/>
+			<rotate y="1" angle="$angle"/>
+			<translate x="0.5" y="0.5" z="0.5"/>
+			<translate y="$voffset"/>
+		</transform>
+	</integrator>
+
+	<sensor type="perspective">
+		<string name="fov_axis" value="$fov_axis"/>
+		<float name="fov" value="39.597755"/>
+		<float name="near_clip" value="0.1"/>
+		<float name="far_clip" value="100"/>
+		<transform name="to_world">
+			<lookat origin="-1.2, 0.7, 0.0" target="0.5, 0.4, 0.5" up="0, 1, 0"/>
+		</transform>
+		<sampler type="independent">
+			<integer name="sample_count" value="$spp"/>
+		</sampler>
+		<film type="hdrfilm">
+			<integer name="width" value="$resx"/>
+			<integer name="height" value="$resy"/>
+			<rfilter type="gaussian"/>
+		</film>
+	</sensor>
+
+	<bsdf type="diffuse" id="empty-emitter-bsdf">
+		<rgb value="0.000000" name="reflectance"/>
+	</bsdf>
+
+	<emitter type="constant">
+		<float name="radiance" value="0.75"/>
+	</emitter>
+
+	<shape type="ply" id="studio-emitter1">
+		<string name="filename" value="meshes/Plane.001-Material.002.ply"/>
+		<ref id="empty-emitter-bsdf" name="bsdf"/>
+		<emitter type="area">
+			<rgb value="10 6 0.5" name="radiance"/>
+		</emitter>
+	</shape>
+	<shape type="ply" id="studio-emitter2">
+		<string name="filename" value="meshes/Plane.002-Material.003.ply"/>
+		<ref id="empty-emitter-bsdf" name="bsdf"/>
+		<emitter type="area">
+			<rgb value="20 25 40" name="radiance"/>
+		</emitter>
+		<transform name="to_world">
+			<translate y="0.3"/>
+		</transform>
+
+	</shape>
+
+	<bsdf type="roughplastic" id="plasticbsdf">
+        <float name="alpha" value="0.2"/>
+    </bsdf>
+
+	<include filename="$shape_file"/>
+
+	<shape type="ply" id="studio-background">
+		<string name="filename" value="meshes/bg.ply"/>
+		<bsdf type="diffuse"/>
+		<!-- <transform name="to_world">
+			<translate z="20"/>
+		</transform> -->
+		<!-- <bsdf type="roughplastic">
+	        <float name="alpha" value="0.15"/>
+			<float name="diffuse_reflectance" value="0.2"/>
+	    </bsdf> -->
+	</shape>
+</scene>

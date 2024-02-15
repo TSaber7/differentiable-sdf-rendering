@@ -1,0 +1,81 @@
+<scene version="2.1.0">
+
+	<path value="../../"/>
+	<path value="../../extra/"/>
+	<path value="../../bunny/"/>
+	<default name="sensors_filename" value="empty.xml"/>
+
+	<include filename="common.xml"/>
+	<default name="mesh_path" value="meshes/xyzrgb_dragon.ply"/>
+	<default name="mesh_type" value="ply"/>
+	<default name="rect_scale" value="0.5"/>
+	<default name="rotate_y" value="20"/>
+
+	<sensor type="perspective">
+		<string name="fov_axis" value="x"/>
+		<float name="fov" value="39.597752"/>
+		<float name="near_clip" value="0.100000"/>
+		<float name="far_clip" value="1000.000000"/>
+		<transform name="to_world">
+			<rotate x="1" angle="-170.42808228345208"/>
+			<rotate y="1" angle="0.23840097615097794"/>
+			<rotate z="1" angle="179.13785755078231"/>
+			<translate value="0.002103 0.262557 1.603197"/>
+		</transform>
+		<sampler type="independent">
+			<integer name="sample_count" value="$spp"/>
+		</sampler>
+		<film type="hdrfilm">
+			<integer name="width" value="$resx"/>
+			<integer name="height" value="$resy"/>
+			<string name="pixel_format" value="rgba"/>
+		</film>
+	</sensor>
+
+    <bsdf type="principled" id="default_mat_gray">
+		<rgb value="0.085326 0.085326 0.085326" name="base_color"/>
+		<float name="specular" value="1.000000"/>
+		<float name="spec_tint" value="0.000000"/>
+		<float name="spec_trans" value="0.000000"/>
+		<float name="metallic" value="0.000000"/>
+		<float name="anisotropic" value="0.000000"/>
+		<float name="roughness" value="0.672152"/>
+		<float name="sheen" value="0.000000"/>
+		<float name="sheen_tint" value="0.500000"/>
+		<float name="clearcoat" value="0.000000"/>
+		<float name="clearcoat_gloss" value="0.173205"/>
+	</bsdf>
+
+	<emitter type="envmap">
+		<string name="filename" value="textures/museum.hdr"/>
+		<float name="scale" value="4.000000"/>
+		<transform name="to_world">
+			<matrix value="0.000000 0.000000 1.000000 0.000000 0.000000 1.000000 0.000000 0.000000 -1.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.000000"/>
+		</transform>
+	</emitter>
+	<emitter type="point">
+		<point name="position" x="-2.069742202758789" y="1.8414767980575562" z="3.067885398864746"/>
+		<rgb value="79.577469 79.577469 79.577469" name="intensity"/>
+	</emitter>
+
+	<shape type="ply">
+		<string name="filename" value="meshes/bunny_005.ply"/>
+		<ref id="default_mat_gray" name="bsdf"/>
+	</shape>
+
+    <shape type="rectangle">
+        <transform name="to_world">
+            <scale value="$rect_scale"/>
+            <rotate y="1" angle="$rotate_y"/>
+            <translate x="0.5" y="0.5" z="0.5"/>
+        </transform>
+        <bsdf type="diffuse">
+            <texture type="bitmap" name="reflectance">
+                <string name="filename" value="textures/white.png"/>
+            </texture>
+        </bsdf>
+    </shape>
+
+</scene>
+
+

@@ -1,0 +1,18 @@
+<scene version="2.1.0">
+	<include filename="sphere_reparam.xml"/>
+
+    <shape type="ply">
+        <transform name="to_world">
+            <scale x="-1"/>
+        </transform>
+        <string name="filename" value="../../../outputs/figures/tmp/sphere_reparam/arrows.ply"/>
+
+        <bsdf type="twosided">
+            <bsdf type="roughplastic">
+                <float name="alpha" value="0.1" />
+                <rgb name="diffuse_reflectance" value="0.75, 0.07, 0.05"/>
+            </bsdf>
+        </bsdf>
+    </shape>
+
+</scene>

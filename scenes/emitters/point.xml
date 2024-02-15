@@ -1,0 +1,22 @@
+<scene version="2.1.0">
+    <!-- <emitter type="point">
+        <point name="position" x="2" y="3" z="2"/>
+        <spectrum name="intensity" value="30"/>
+    </emitter>
+    <emitter type="point">
+        <point name="position" x="0" y="5" z="0"/>
+        <spectrum name="intensity" value="30"/>
+    </emitter>
+
+    <emitter type="point">
+        <point name="position" x="-2" y="1" z="-1"/>
+        <spectrum name="intensity" value="30"/>
+    </emitter> -->
+
+    <emitter type="point">
+        <point name="position" x="0.5" y="0.5" z="2"/>
+        <spectrum name="intensity" value="5"/>
+    </emitter>
+
+
+</scene>

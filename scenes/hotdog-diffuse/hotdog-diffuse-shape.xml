@@ -1,0 +1,55 @@
+<scene version="2.1.0">
+    <path value="../"/>
+    <path value="../hotdog/"/>
+
+    <bsdf type="twosided" id="mat-Pan1">
+        <bsdf type="diffuse">
+            <texture type="bitmap" name="reflectance">
+                <string name="filename" value="textures/Pan1PaintTexture.png"/>
+            </texture>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-Pan2">
+        <bsdf type="diffuse">
+            <texture type="bitmap" name="reflectance">
+                <string name="filename" value="textures/Pan2TexturePaint.png"/>
+            </texture>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-Salchicha">
+        <bsdf type="diffuse">
+            <texture type="bitmap" name="reflectance">
+                <string name="filename" value="textures/SalchichaPaint1.png"/>
+            </texture>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-Material.001">
+        <bsdf type="diffuse">
+            <rgb name="reflectance" value="0.800000 0.515872 0.043681"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-Mayonesa">
+        <bsdf type="diffuse">
+            <rgb name="reflectance" value="1.000000 0.747158 0.197200"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-Material">
+        <bsdf type="diffuse">
+            <rgb name="reflectance" value="0.800000 0.487193 0.248353"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-Salsa">
+        <bsdf type="diffuse">
+            <rgb name="reflectance" value="0.175825 0.012654 0.002614"/>
+        </bsdf>
+
+    </bsdf>
+    <bsdf type="twosided" id="mat-Chipotle">
+        <bsdf type="diffuse">
+            <rgb name="reflectance" value="0.799998 0.345516 0.090210"/>
+        </bsdf>
+    </bsdf>
+
+    <default name="geo_file" value="hotdog-geo.xml"/>
+    <include filename="$geo_file"/>
+</scene>

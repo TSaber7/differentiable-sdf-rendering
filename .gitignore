@@ -15,4 +15,7 @@ outputs_new
 outputs_old
 venv.bak/
 venv/
-scenes/
+*.ply
+*.vol
+*.obj
+*.hdr

@@ -1,0 +1,12 @@
+<scene version="2.1.0">
+
+	<path value="../"/>
+
+	<shape type="obj">
+		<ref id="$main_bsdf_name" name="bsdf"/>
+        <string name="filename" value="meshes/bunny2.obj"/>
+        <transform name="to_world">
+            <translate x="0.5" y="0.5" z="0.5"/>
+        </transform>
+	</shape>
+</scene>
