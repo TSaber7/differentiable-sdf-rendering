@@ -41,13 +41,13 @@ results = [
      'opt_config': 'principled-32-hqq',
      'y_rotation': -130,
      'y_offset': -0.15,
-     'pretty_name': 'Boar'},
+     'pretty_name': 'Boar'}
 
-    {'scene': 'hotdog-diffuse',
-     'opt_config': 'diffuse-16-top-hqq',
-     'y_rotation': 60,
-     'y_offset': -0.2,
-     'pretty_name': 'Hotdog'}
+    # {'scene': 'hotdog-diffuse',
+    #  'opt_config': 'diffuse-16-top-hqq',
+    #  'y_rotation': 60,
+    #  'y_offset': -0.2,
+    #  'pretty_name': 'Hotdog'}
 ]
 
 
