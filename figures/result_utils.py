@@ -71,7 +71,7 @@ def render_optimization_result(scene_name, config, opt_config, show_iters=None,
                 pbar.update()
             continue
         scene = mi.load_file(ref_scene_name, resx=resx, resy=resy, bsdf_file=bsdf_file,
-                             angle=rotate_y, voffset=translate_y)
+                             angle=rotate_y, voffset=translate_y, parallel=config.use_parallel_loading)
         opt_config.load_checkpoint(scene, p, suffix)
         result = mi.render(scene, spp=spp, sensor=sensor)
         mi.util.write_bitmap(fn, result)
@@ -115,7 +115,7 @@ def render_reference_object(scene_name, opt_config, image_output_dir,
         return
     bsdf_file = 'bsdf_principled.xml' if 'principled' in opt_config.name else 'bsdf_diffuse.xml'
 
-    scene = mi.load_file(ref_scene_name, resx=resx, resy=resy, bsdf_file=bsdf_file,
+    scene = mi.load_file(ref_scene_name, resx=resx, resy=resy, 
                          shape_file=shape_file, sdf_filename='', angle=rotate_y,
                          voffset=translate_y, extra_path=extra_path)
     rotate_reference_mesh(scene, translate_y, rotate_y)
