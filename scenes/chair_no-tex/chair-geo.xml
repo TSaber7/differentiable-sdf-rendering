@@ -1,0 +1,99 @@
+<scene version="2.1.0">
+	<shape type="ply">
+		<string name="filename" value="meshes/1DC_F1.ply"/>
+		<boolean name="face_normals" value="true"/>
+		<ref id="$main_bsdf_name" name="bsdf"/>
+		<!-- <ref id="mat-1D_METAL" name="bsdf"/> -->
+		<transform name="to_world">
+			<translate x="0.5" y="0.5" z="0.5"/>
+		</transform>
+	</shape>
+	<shape type="ply">
+		<string name="filename" value="meshes/1DC_Wire4.ply"/>
+		<boolean name="face_normals" value="true"/>
+		<!-- <ref id="mat-1D_ROPE" name="bsdf"/> -->
+		<ref id="$main_bsdf_name" name="bsdf"/>
+		<transform name="to_world">
+			<translate x="0.5" y="0.5" z="0.5"/>
+		</transform>
+	</shape>
+	<shape type="ply">
+		<string name="filename" value="meshes/1DC_WF.ply"/>
+		<boolean name="face_normals" value="true"/>
+		<!-- <ref id="mat-1D_MAINWHITE" name="bsdf"/> -->
+		<ref id="$main_bsdf_name" name="bsdf"/>
+		<transform name="to_world">
+			<translate x="0.5" y="0.5" z="0.5"/>
+		</transform>
+	</shape>
+	<shape type="ply">
+		<string name="filename" value="meshes/1DC_Cap.ply"/>
+		<boolean name="face_normals" value="true"/>
+		<!-- <ref id="mat-1D_MAINWHITE" name="bsdf"/> -->
+		<ref id="$main_bsdf_name" name="bsdf"/>
+		<transform name="to_world">
+			<translate x="0.5" y="0.5" z="0.5"/>
+		</transform>
+	</shape>
+	<shape type="ply">
+		<string name="filename" value="meshes/1DC_Wire2.ply"/>
+		<boolean name="face_normals" value="true"/>
+		<!-- <ref id="mat-1D_ROPE" name="bsdf"/> -->
+		<ref id="$main_bsdf_name" name="bsdf"/>
+		<transform name="to_world">
+			<translate x="0.5" y="0.5" z="0.5"/>
+		</transform>
+	</shape>
+	<shape type="ply">
+		<string name="filename" value="meshes/1DC_Wire3.ply"/>
+		<boolean name="face_normals" value="true"/>
+		<!-- <ref id="mat-1D_ROPE" name="bsdf"/> -->
+		<ref id="$main_bsdf_name" name="bsdf"/>
+		<transform name="to_world">
+			<translate x="0.5" y="0.5" z="0.5"/>
+		</transform>
+	</shape>
+	<shape type="ply">
+		<string name="filename" value="meshes/1DC_Wire1.ply"/>
+		<boolean name="face_normals" value="true"/>
+		<!-- <ref id="mat-1D_ROPE" name="bsdf"/> -->
+		<ref id="$main_bsdf_name" name="bsdf"/>
+		<transform name="to_world">
+			<translate x="0.5" y="0.5" z="0.5"/>
+		</transform>
+	</shape>
+	<shape type="ply">
+		<string name="filename" value="meshes/1DC_Wire.ply"/>
+		<boolean name="face_normals" value="true"/>
+		<!-- <ref id="mat-1D_ROPE" name="bsdf"/> -->
+		<ref id="$main_bsdf_name" name="bsdf"/>
+		<transform name="to_world">
+			<translate x="0.5" y="0.5" z="0.5"/>
+		</transform>
+	</shape>
+	<shape type="ply">
+		<string name="filename" value="meshes/1DC_W.ply"/>
+		<!-- <ref id="mat-1D_MAINWHITE" name="bsdf"/> -->
+		<ref id="$main_bsdf_name" name="bsdf"/>
+		<transform name="to_world">
+			<translate x="0.5" y="0.5" z="0.5"/>
+		</transform>
+	</shape>
+	<shape type="ply">
+		<string name="filename" value="meshes/1DC_Cloth.ply"/>
+		<!-- <ref id="mat-1D_Cloth" name="bsdf"/> -->
+		<ref id="$main_bsdf_name" name="bsdf"/>
+		<transform name="to_world">
+			<translate x="0.5" y="0.5" z="0.5"/>
+		</transform>
+	</shape>
+	<shape type="ply">
+		<string name="filename" value="meshes/1DC_F.ply"/>
+		<boolean name="face_normals" value="true"/>
+		<!-- <ref id="mat-1D_METAL" name="bsdf"/> -->
+		<ref id="$main_bsdf_name" name="bsdf"/>
+		<transform name="to_world">
+			<translate x="0.5" y="0.5" z="0.5"/>
+		</transform>
+	</shape>
+</scene>

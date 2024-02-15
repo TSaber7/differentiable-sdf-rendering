@@ -1,0 +1,30 @@
+<scene version="2.1.0">
+	<default name="main_bsdf_name" value="red-bsdf"/>
+
+	<!-- <bsdf type="principled" id="mat-1D_METAL">
+		<rgb value="0.463971 0.356273 0.016356" name="base_color"/>
+		<float name="specular" value="1.000000"/>
+		<float name="roughness" value="0.312779"/>
+	</bsdf>
+	<bsdf type="twosided" id="mat-1D_ROPE">
+		<bsdf type="diffuse">
+			<rgb value="0.785714 0.785714 0.785714" name="reflectance"/>
+		</bsdf>
+	</bsdf>
+	<bsdf type="principled" id="mat-1D_MAINWHITE">
+		<rgb value="0.819048 0.716675 0.669997" name="base_color"/>
+		<float name="specular" value="1.000000"/>
+		<float name="roughness" value="0.573233"/>
+	</bsdf>
+	<bsdf type="principled" id="mat-1D_Cloth">
+		<texture type="bitmap" name="base_color">
+			<string name="filename" value="textures/chair_cloth.png"/>
+		</texture>
+		<float name="specular" value="1.000000"/>
+		<float name="roughness" value="0.541541"/>
+		<float name="clearcoat_gloss" value="0.173205"/>
+	</bsdf> -->
+
+	<default name="geo_file" value="chair-geo.xml"/>
+	<include filename="$geo_file"/>
+</scene>
