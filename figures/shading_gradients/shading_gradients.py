@@ -56,9 +56,14 @@ def main(force=0):
         grad_fn = join(fig_dir, sdf_name, f'{sdf_name}_{technique.name}_x.exr')
         if os.path.isfile(img_fn) and os.path.isfile(grad_fn) and force < 1:
             print(f'Skipping existing {os.path.split(grad_fn)[-1]}')
-            continue
+            #continue
         scene = mi.load_file(scene_fn, integrator='sdf_direct_reparam', shape_file='dummysdf.xml',
-                             sdf_filename=join(sdf_paths, sdf + '.vol'), resx=grad_resx, resy=grad_resy)
+                             sdf_filename=join(sdf_paths, sdf + '.vol'),resx=grad_resx, resy=grad_resy, parallel=False)
+        params = mi.traverse(scene)
+        tf = mi.ScalarTransform4f.translate([0.5, 0.5 , 3]).rotate([0, 1, 0],180)
+        params['PerspectiveCamera.to_world']=tf
+        params.update()
+
         img, grad, _ = eval_forward_gradient(scene, technique, 'x')
         mi.util.write_bitmap(img_fn, img)
         mi.util.write_bitmap(grad_fn, grad)

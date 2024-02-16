@@ -104,7 +104,7 @@ def main(force=True):
 
             for run in range(n_runs):
                 scene = mi.load_file(scene_fn, integrator=integrator, sdf_filename=join(sdf_paths, sdf + '.vol'),
-                                 resx=resx, resy=resy, shape_file='dummysdf.xml')
+                                 resx=resx, resy=resy, shape_file='dummysdf.xml',parallel=False)
                 img, stats = eval_reverse_gradient(scene, config)
                 if run == 0:
                     img_fn = join(output_dir, f'{sdf.split("_")[0]}.exr')
