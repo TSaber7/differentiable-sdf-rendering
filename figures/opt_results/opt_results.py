@@ -19,11 +19,11 @@ fig_name = 'opt_results'
 fig_dir = join(FIGURE_DIR, fig_name)
 
 results = [
-    {'scene': 'dragon',
-     'opt_config': 'no-tex-12-hqq',
-     'y_rotation': -20,
-     'y_offset': -0.2,
-     'pretty_name': 'Dragon'},
+    # {'scene': 'dragon',
+    #  'opt_config': 'no-tex-12-hqq',
+    #  'y_rotation': -20,
+    #  'y_offset': -0.2,
+    #  'pretty_name': 'Dragon'},
 
     {'scene': 'chair',
      'opt_config': 'principled-32-hqq',
