@@ -23,7 +23,7 @@ def main(force=0):
     resy = 1024
     spp = 128
 
-    scene_name = 'bunny'
+    scene_name = 'spheres'
     opt_config = 'no-tex-12-hq'
     translate_y = -0.1
     rotate_y = 260
@@ -43,7 +43,7 @@ def main(force=0):
                                    output_dir=output_dir, force=force > 0)
 
     print('[+] Rendering forward mode gradients')
-    sdf = 'bunny_128'
+    sdf = 'spheres_128'
     sdf_paths = join(SCENE_DIR, 'sdfs')
     grad_resx = 256
     grad_resy = 256
