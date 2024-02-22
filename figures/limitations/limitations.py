@@ -46,7 +46,7 @@ def main(force=0):
         ref_scene_name = join(SCENE_DIR, scene_name, scene_name + '.xml')
         sdf_filename = sorted(glob.glob(join(p, 'params', '*sdf*.vol')))[-1]
         scene = mi.load_file(ref_scene_name, shape_file='dummysdf.xml', sdf_filename=sdf_filename,
-                             integrator=config.integrator, resx=resx, resy=resy, **mts_args)
+                             integrator=config.integrator, resx=resx, resy=resy, **mts_args,parallel=False)
         scene_config.load_checkpoint(scene, p, suffix)
         result = mi.render(scene, spp=spp, sensor=sensor)
         mi.util.write_bitmap(fn, result[..., :4])
@@ -57,7 +57,7 @@ def main(force=0):
         print(f"Found output image, skipping rendering. {fn}")
     else:
         ref_scene_name = join(SCENE_DIR, scene_name, scene_name + '.xml')
-        scene = mi.load_file(ref_scene_name, integrator=config.integrator, resx=resx, resy=resy)
+        scene = mi.load_file(ref_scene_name, integrator=config.integrator, resx=resx, resy=resy,parallel=False)
         result = mi.render(scene, spp=spp, sensor=sensor)
         mi.util.write_bitmap(fn, result[..., :4])
 
