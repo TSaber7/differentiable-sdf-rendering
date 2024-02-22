@@ -242,7 +242,7 @@ CONFIG_DICTS = [
         'use_multiscale_rendering': False,
         'sensors': (get_regular_cameras, 12),
         'upsample_iter': [64, 128],
-        'batch_size': 6
+        'batch_size': 12
     }, {
         'name': 'torus-shadow-1',
         'parent': 'no-tex-12',
@@ -293,12 +293,12 @@ CONFIG_DICTS = [
         'name': 'diffuse-12',
         'parent': 'diffuse-6',
         'sensors': (get_regular_cameras, 12),
-        'batch_size': 6,
+        'batch_size': 12,
     }, {
         'name': 'principled-12',
         'parent': 'principled-6',
         'sensors': (get_regular_cameras, 12),
-        'batch_size': 6,
+        'batch_size': 12,
         'upsample_iter': [128, 180]
     }, {
         'name': 'diffuse-12-hq',
