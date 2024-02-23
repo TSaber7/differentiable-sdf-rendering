@@ -20,8 +20,8 @@ def main(force=True):
     dr.set_flag(dr.JitFlag.KernelHistory, True)
     resx = 128
     resy = 128
-    scenes = ['glossy_plane', 'plane_red_object', 'plane_area']
-    sdfs = ['bunny_128', 'logo_256', 'shadowing_128']
+    scenes = ['glossy_plane',  'plane_area']
+    sdfs = ['bunny_128',  'shadowing_128']
     emitters = ['', 'emitters/cathedral.xml', 'emitters/vmf.xml']
     integrators = ['sdf_prb_reparam', 'sdf_direct_reparam', 'sdf_direct_reparam']
     params = ['x', 'x', 'x']
@@ -43,7 +43,14 @@ def main(force=True):
                 continue
 
             scene = mi.load_file(scene_fn, integrator=integrator, sdf_filename=join(sdf_paths, sdf + '.vol'),
-                                 resx=resx, resy=resy, emitter_scene=emitter)
+                                 resx=resx, resy=resy,parallel=False)
+            
+            if(scene_name=='plane_area'):
+                params = mi.traverse(scene)
+                tf = mi.ScalarTransform4f.translate([0.5, 0.5 , 3]).rotate([0, 1, 0],180)
+                params['PerspectiveCamera.to_world']=tf
+                params.update()
+
             img, grad, stats = eval_forward_gradient(scene, technique, axis)
             mi.util.write_bitmap(img_fn, img)
             mi.util.write_bitmap(grad_fn, grad)
