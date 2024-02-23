@@ -1,0 +1,26 @@
+
+<scene version="2.1.0">
+	<path value="../"/>
+
+	<default name="spp" value="32"/>
+	<default name="resx" value="64"/>
+	<default name="resy" value="64"/>
+	<default name="max_depth" value="3"/>
+	<default name="integrator" value="path"/>
+	<default name="sensors_filename" value="sensors.xml"/>
+
+	<integrator type='$integrator'>
+        <integer name="max_depth" value="$max_depth"/>
+    </integrator>
+	<!-- <include filename="common-env.xml"/> -->
+
+	<include filename="$sensors_filename"/>
+
+	<default name="emitter_scene" value="emitters/cathedral.xml"/>
+    <include filename="$emitter_scene"/>
+	<!-- <default name="main_bsdf_name" value="red-bsdf"/> -->
+	<!-- <default name="shape_file" value="dragon-shape.xml"/>
+	<include filename="$shape_file"/> -->
+</scene>
+
+
