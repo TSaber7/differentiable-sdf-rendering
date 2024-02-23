@@ -80,11 +80,11 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
                                 seed_grad=seed + 1 + len(scene_config.sensors), spp_grad=config.spp)
                 seed += 1 + len(scene_config.sensors)
                 view_loss = scene_config.loss(img, ref_images[idx][sensor.film().crop_size()[0]]) / scene_config.batch_size
-                dr.backward(view_loss)
                 bmp = resize_img(mi.Bitmap(img), scene_config.target_res)
                 mi.util.write_bitmap(join(opt_image_dir, f'opt-{i:04d}-{idx:02d}' + ('.png' if write_ldr_images else '.exr')), bmp)
                 loss += view_loss
 
+            dr.backward(loss)
             # Evaluate regularization loss
             reg_loss = scene_config.eval_regularizer(opt, sdf_object, i)
             if dr.grad_enabled(reg_loss):
