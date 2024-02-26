@@ -5,11 +5,11 @@
 	<integrator type="$integrator">
 		<integer name="max_depth" value="$max_depth"/>
 		<string name="sdf_filename" value="$sdf_filename"/>
-		<boolean name="use_aovs" value="$use_aovs"/>
-		<boolean name="use_mis" value="$use_mis"/>
+		<!-- <boolean name="use_aovs" value="$use_aovs"/>
+		<boolean name="use_mis" value="$use_mis"/> -->
 		<boolean name="hide_emitters" value="$hide_emitters"/>
-		<boolean name="antithetic_sampling" value="$use_antithetic_sampling"/>
+		<!-- <boolean name="antithetic_sampling" value="$use_antithetic_sampling"/>
 		<boolean name="decouple_reparam" value="$decouple_reparam"/>
-		<boolean name="detach_indirect_si" value="$detach_indirect_si"/>
+		<boolean name="detach_indirect_si" value="$detach_indirect_si"/> -->
 	</integrator>
 </scene>

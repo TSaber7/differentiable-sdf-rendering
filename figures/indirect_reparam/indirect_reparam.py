@@ -23,7 +23,7 @@ results = [
     {'scene': 'torus-shadow',
      'opt_config': 'torus-shadow-1',
      'translate_y': -0.07,
-     'rotate_y': -140,
+     'rotate_y': -40,
      'configs': [configs.WarpPrimary(), configs.Warp()]},
     # {'scene': 'mirror-opt',
     #  'opt_config': 'mirror-opt-hq',
@@ -92,9 +92,10 @@ def main(force=0, render_turntables=False, verbose=False):
 
                 sdf_filename = sorted(glob.glob(join(p, 'params', '*sdf*.vol')))[-1]
                 scene = mi.load_file(ref_scene_name, shape_file=shape_file,
-                                     sdf_filename=sdf_filename, integrator=config.integrator,
+                                     sdf_filename=sdf_filename, 
+                                     integrator=config.integrator,
                                      resx=resx, resy=resy, **mts_args,parallel=False)
-                scene_config.load_checkpoint(scene, p, suffix)
+                #scene_config.load_checkpoint(scene, p, suffix)
                 result = mi.render(scene, spp=spp)
                 mi.util.write_bitmap(fn, result[..., :4])
                 pbar.update()
@@ -120,7 +121,9 @@ def main(force=0, render_turntables=False, verbose=False):
             continue
         bsdf_file = 'bsdf_principled.xml' if 'principled' in scene_config.name else 'bsdf_diffuse.xml'
         ref_scene_name = join(SCENE_DIR, 'figures', 'studio', 'studio.xml')
-        scene = mi.load_file(ref_scene_name, resx=resx, resy=resy, bsdf_file=bsdf_file, shape_file=shape_file, sdf_filename='',
+        scene = mi.load_file(ref_scene_name, resx=resx, resy=resy, 
+                             #bsdf_file=bsdf_file, 
+                             shape_file=shape_file, sdf_filename='',
                              angle=rotate_y, voffset=translate_y, extra_path=os.path.realpath(join(SCENE_DIR, scene_name)),parallel=False)
         rotate_reference_mesh(scene, translate_y, rotate_y)
         result = mi.render(scene, spp=spp, sensor=0)
