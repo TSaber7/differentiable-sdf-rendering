@@ -46,17 +46,25 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
     # sdf_object = sdf_scene.integrator().sdf
     # sdf_scene.integrator().warp_field = config.get_warpfield(sdf_object)
 
+    opt_scale=True
     params = mi.traverse(sdf_scene)
     print(params)
-    key='EnvironmentMapEmitter.data'
-    params[key] += 1.0
-    params[key] = dr.clamp(params[key], 0.0, 1.0)
+    key1='EnvironmentMapEmitter.data'
+    params[key1] += 1.0
+    params[key1] = dr.clamp(params[key1], 0.0, 1.0)
+    if(opt_scale):
+        key2='EnvironmentMapEmitter.scale'
+        params[key2] = 1.0
     params.update()
 
     #assert any('_sdf_' in shape.id() for shape in sdf_scene.shapes()), "Could not find a placeholder shape for the SDF"
     # param_keys=scene_config.param_keys
     # param_keys.append(key)
-    params.keep(key)
+
+    if(opt_scale):
+        params.keep([key1,key2])
+    else:
+        params.keep(key1)
 
     opt = mi.ad.Adam(lr=config.learning_rate, params=params, mask_updates=config.mask_optimizer)
     n_iter = config.n_iter
