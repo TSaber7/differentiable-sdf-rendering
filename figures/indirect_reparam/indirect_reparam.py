@@ -20,16 +20,16 @@ fig_name = 'indirect_reparam'
 fig_dir = join(FIGURE_DIR, fig_name)
 
 results = [
-    {'scene': 'torus-shadow',
-     'opt_config': 'torus-shadow-1',
+    # {'scene': 'torus-shadow',
+    #  'opt_config': 'torus-shadow-1',
+    #  'translate_y': -0.07,
+    #  'rotate_y': -40,
+    #  'configs': [configs.WarpPrimary(), configs.Warp()]},
+    {'scene': 'mirror-opt',
+     'opt_config': 'mirror-opt-hq',
      'translate_y': -0.07,
      'rotate_y': -40,
-     'configs': [configs.WarpPrimary(), configs.Warp()]},
-    # {'scene': 'mirror-opt',
-    #  'opt_config': 'mirror-opt-hq',
-    #  'translate_y': -0.07,
-    #  'rotate_y': -140,
-    #  'configs': [configs.WarpPRBPrimary(), configs.WarpPRB()]}
+     'configs': [configs.WarpPRBPrimary(), configs.WarpPRB()]}
 ]
 
 
@@ -53,8 +53,8 @@ def main(force=0, render_turntables=False, verbose=False):
                 continue
             cmd = f'python optimize.py {scene} --opt {opt_config} --configs {cfg_name} --force'
             # For now run PRB configs using LLVM to deal with long compilation times in Optix
-            if 'prb' in config.name:
-                cmd += ' --llvm'
+            # if 'prb' in config.name:
+            #     cmd += ' --llvm'
             subprocess.call(cmd, shell=True, cwd=cwd)
 
     # Re-render reference and opt results from different viewpoints at high quality
@@ -93,9 +93,9 @@ def main(force=0, render_turntables=False, verbose=False):
                 sdf_filename = sorted(glob.glob(join(p, 'params', '*sdf*.vol')))[-1]
                 scene = mi.load_file(ref_scene_name, shape_file=shape_file,
                                      sdf_filename=sdf_filename, 
-                                     integrator=config.integrator,
+                                     #integrator=config.integrator,
                                      resx=resx, resy=resy, **mts_args,parallel=False)
-                #scene_config.load_checkpoint(scene, p, suffix)
+                scene_config.load_checkpoint(scene, p, suffix)
                 result = mi.render(scene, spp=spp)
                 mi.util.write_bitmap(fn, result[..., :4])
                 pbar.update()
