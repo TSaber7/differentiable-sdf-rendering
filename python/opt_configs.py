@@ -467,6 +467,7 @@ CONFIG_DICTS = [
         'name': 'no-tex-32-hqq',
         'parent': 'no-tex-12-hqq',
         'sensors': (get_regular_cameras, 32),
+        'batch_size': 32
     }, {
         'name': 'principled-12-hq',
         'parent': 'principled-12',
