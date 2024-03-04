@@ -499,7 +499,8 @@ CONFIG_DICTS = [
     }, {
         'name': 'principled-32-hqq',
         'parent': 'principled-16-hqq',
-        'sensors': (get_regular_cameras, 32)
+        'sensors': (get_regular_cameras, 32),
+        'batch_size': 32
     }, {
         'name': 'principled-48-hqq',
         'parent': 'principled-16-hqq',
