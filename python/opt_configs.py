@@ -463,6 +463,7 @@ CONFIG_DICTS = [
         'upsample_iter': [128, 180, 220, 270],
         'sdf_res': 128,
         'resx': 128, 'resy': 128,
+        'batch_size': 12
     }, {
         'name': 'no-tex-32-hqq',
         'parent': 'no-tex-12-hqq',
