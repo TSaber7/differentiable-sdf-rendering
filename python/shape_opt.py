@@ -47,6 +47,15 @@ def optimize_shape(scene_config, mts_args, ref_image_paths,
     sdf_scene.integrator().warp_field = config.get_warpfield(sdf_object)
 
     params = mi.traverse(sdf_scene)
+
+    no_env = False
+    key1='EnvironmentMapEmitter.data'
+    if(no_env):
+        params[key1] += 1.0
+        params[key1] = dr.clamp(params[key1], 0.0, 1.0)
+    params.update()
+
+
     assert any('_sdf_' in shape.id() for shape in sdf_scene.shapes()), "Could not find a placeholder shape for the SDF"
     params.keep(scene_config.param_keys)
 
